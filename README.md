@@ -1,7 +1,9 @@
 # AXI4-Lite-to-APB-Bridge-with-Asynchronous-CDC
 Provide a small, easy-to-verify bridge that accepts AXI4-Lite transactions on the fast side and performs APB transfers to low-speed peripherals on the slow side. The bridge acts as an AXI4-Lite slave and as an APB master to selected peripherals, translating protocol and synchronizing clock domains. 
 
+## Data & Control Flow
 
+```mermaid
 graph LR
     %% Styles
     classDef aclk fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:black;
@@ -53,3 +55,4 @@ graph LR
     APB_FSM -- PRDATA --> RdRsp_FIFO
     RdRsp_FIFO -- Pop Data --> AXI_Slave
     AXI_Slave -- RDATA, RRESP --> AXI_Master
+```
