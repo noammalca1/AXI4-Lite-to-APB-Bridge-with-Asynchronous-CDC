@@ -12,28 +12,28 @@ graph LR
     classDef ext fill:#f5f5f5,stroke:#616161,stroke-width:1px,color:black;
 
     %% External Interfaces
-    AXI_Master[AXI4-Lite Master]:::ext
-    APB_Slaves[APB Slaves]:::ext
+    AXI_Master["AXI4-Lite Master<br/>(Verification IP / TB)"]:::ext
+    APB_Slaves["APB Slaves<br/>(External / TB)"]:::ext
 
     %% ACLK Domain Subgraph
     subgraph ACLK_Domain [ACLK Domain]
         direction TB
-        AXI_Slave[AXI Lite Slave FSM]:::aclk
+        AXI_Slave["AXI Lite Slave FSM<br/>(axi_lite_slave.sv)"]:::aclk
     end
 
     %% PCLK Domain Subgraph
     subgraph PCLK_Domain [PCLK Domain]
         direction TB
-        Arbiter[Arbiter]:::pclk
-        APB_FSM[APB Master FSM]:::pclk
+        Arbiter["Arbiter Logic<br/>(in axi_apb_bridge_top.sv)"]:::pclk
+        APB_FSM["APB Master FSM<br/>(apb_master_fsm.sv)"]:::pclk
     end
 
     %% FIFOs (CDC)
     subgraph CDC [Clock Domain Crossing]
-        WrCmd_FIFO((Write Cmd FIFO)):::fifo
-        RdCmd_FIFO((Read Cmd FIFO)):::fifo
-        WrRsp_FIFO((Write Rsp FIFO)):::fifo
-        RdRsp_FIFO((Read Rsp FIFO)):::fifo
+        WrCmd_FIFO(("Write Cmd FIFO<br/>(async_fifo.sv)")):::fifo
+        RdCmd_FIFO(("Read Cmd FIFO<br/>(async_fifo.sv)")):::fifo
+        WrRsp_FIFO(("Write Rsp FIFO<br/>(async_fifo.sv)")):::fifo
+        RdRsp_FIFO(("Read Rsp FIFO<br/>(async_fifo.sv)")):::fifo
     end
 
     %% Flow Connections - Write Path
