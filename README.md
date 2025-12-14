@@ -24,7 +24,7 @@ graph LR
     %% PCLK Domain Subgraph
     subgraph PCLK_Domain [PCLK Domain]
         direction TB
-        Arbiter["Arbiter Logic<br/>(in axi_apb_bridge_top.sv)"]:::pclk
+        Arbiter["Arbiter Logic<br/>(axi_apb_bridge_top.sv)"]:::pclk
         APB_FSM["APB Master FSM<br/>(apb_master_fsm.sv)"]:::pclk
     end
 
