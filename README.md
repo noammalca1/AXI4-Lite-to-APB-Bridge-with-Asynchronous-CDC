@@ -12,7 +12,7 @@ graph LR
     classDef ext fill:#f5f5f5,stroke:#616161,stroke-width:1px,color:black;
 
     %% External Interfaces
-    AXI_Master["AXI4-Lite Master<br/>(Verification IP / TB)"]:::ext
+    AXI_Master["AXI4-Lite Master<br/>(Testbench)"]:::ext
     APB_Slaves["APB Slaves<br/>(External / TB)"]:::ext
 
     %% ACLK Domain Subgraph
