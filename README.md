@@ -42,7 +42,11 @@ graph LR
     WrCmd_FIFO -- Pop Cmd --> Arbiter
     Arbiter --> APB_FSM
     APB_FSM -- PADDR, PWDATA --> APB_Slaves
-    APB_Slaves -- PREADY, PSLVERR --> APB_FSM
+    
+    %% --- השינוי כאן: הוספתי את PRDATA ---
+    APB_Slaves -- PREADY, PSLVERR, PRDATA --> APB_FSM
+    %% ------------------------------------
+
     APB_FSM -- Push Resp --> WrRsp_FIFO
     WrRsp_FIFO -- Pop Resp --> AXI_Slave
     AXI_Slave -- BRESP --> AXI_Master
