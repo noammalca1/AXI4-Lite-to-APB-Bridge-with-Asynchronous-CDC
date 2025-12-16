@@ -78,19 +78,19 @@ graph LR
     Master["AXI4-Lite Master"]:::ext
     APB_Slave["APB Peripheral"]:::ext
 
-    %% ACLK Domain
-    subgraph ACLK_Domain [ACLK Domain (Fast)]
+    %% ACLK Domain - Added Quotes here
+    subgraph ACLK_Domain ["ACLK Domain (Fast)"]
         AXI_FSM["AXI Slave FSM"]:::aclk
     end
 
     %% CDC (FIFOs)
-    subgraph CDC [Clock Domain Crossing]
+    subgraph CDC ["Clock Domain Crossing"]
         Wr_Cmd_FIFO(("Write Cmd FIFO<br/>(Addr + Data)")):::fifo
         Wr_Rsp_FIFO(("Write Rsp FIFO<br/>(Status)")):::fifo
     end
 
-    %% PCLK Domain
-    subgraph PCLK_Domain [PCLK Domain (Slow)]
+    %% PCLK Domain - Added Quotes here
+    subgraph PCLK_Domain ["PCLK Domain (Slow)"]
         Arbiter["Arbiter / Unpacker"]:::pclk
         APB_FSM["APB Master FSM"]:::pclk
     end
@@ -116,5 +116,5 @@ graph LR
     %% Link Styling
     %% ==========================================
     linkStyle 0,1,2,3,4 stroke:#1565c0,stroke-width:2px;  %% Data Path (Blue)
-    linkStyle 5,6,7,8 stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 5 5;  %% Response Path (Orange/Dashed)הסטרוב
+    linkStyle 5,6,7,8 stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 5 5;  %% Response Path (Orange/Dashed)
 ```
