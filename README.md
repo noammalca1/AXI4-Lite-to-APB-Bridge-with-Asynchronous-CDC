@@ -60,3 +60,59 @@ graph LR
     RdRsp_FIFO -- Pop Data --> AXI_Slave
     AXI_Slave -- RDATA, RRESP --> AXI_Master
 ```
+## Data Flow FIFO
+
+```mermaid
+graph LR
+    %% ==========================================
+    %% Styles & Definitions
+    %% ==========================================
+    classDef writeDomain fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:black;
+    classDef readDomain  fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,color:black;
+    classDef memory      fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 5 5,color:black;
+    
+    %% ==========================================
+    %% 1. Write Side (ACLK Domain)
+    %% ==========================================
+    subgraph Write_Side ["Write Domain (ACLK)"]
+        direction TB
+        Input_Data[/"Data In (wdata)"/]:::writeDomain
+        Write_En["Write Enable"]:::writeDomain
+        Full_Flag{"Full Flag"}:::writeDomain
+    end
+
+    %% ==========================================
+    %% 2. The Storage (Async Boundary)
+    %% ==========================================
+    FIFO_RAM[("Dual-Port RAM<br/>(Circular Buffer)")]:::memory
+
+    %% ==========================================
+    %% 3. Read Side (PCLK Domain)
+    %% ==========================================
+    subgraph Read_Side ["Read Domain (PCLK)"]
+        direction TB
+        Output_Data[/"Data Out (rdata)"/]:::readDomain
+        Read_En["Read Enable"]:::readDomain
+        Empty_Flag{"Empty Flag"}:::readDomain
+    end
+
+    %% ==========================================
+    %% Connections
+    %% ==========================================
+    
+    %% Write Operation
+    Input_Data ==> FIFO_RAM
+    Write_En --> |"Push"| FIFO_RAM
+    FIFO_RAM -.-> |"Pointer Status"| Full_Flag
+    Full_Flag -.-> |"Backpressure"| Write_En
+
+    %% Read Operation
+    FIFO_RAM ==> Output_Data
+    Read_En --> |"Pop"| FIFO_RAM
+    FIFO_RAM -.-> |"Pointer Status"| Empty_Flag
+    Empty_Flag -.-> |"Wait"| Read_En
+
+    %% ==========================================
+    %% Link Styles
+    %% ==========================================
+    linkStyle 0,4 stroke-width:4px,fill:none,stroke:black; %% Data flow (Thick lines)
