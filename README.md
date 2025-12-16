@@ -60,3 +60,9 @@ graph LR
     RdRsp_FIFO -- Pop Data --> AXI_Slave
     AXI_Slave -- RDATA, RRESP --> AXI_Master
 ```
+
+// פירוק החבילה (Slicing)
+wire [ADDR_WIDTH-1:0] wr_cmd_addr_pclk  = wr_cmd_fifo_rdata[67:36]; // הכתובת
+wire [DATA_WIDTH-1:0] wr_cmd_wdata_pclk = wr_cmd_fifo_rdata[35:4];  // המידע
+wire [STRB_WIDTH-1:0] wr_cmd_wstrb_pclk = wr_cmd_fifo_rdata[3:0];   // הסטרוב
+```
