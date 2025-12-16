@@ -60,6 +60,7 @@ graph LR
     RdRsp_FIFO -- Pop Data --> AXI_Slave
     AXI_Slave -- RDATA, RRESP --> AXI_Master
 ```
+```mermaid
 graph LR
     %% ==========================================
     %% Styles & Classes
