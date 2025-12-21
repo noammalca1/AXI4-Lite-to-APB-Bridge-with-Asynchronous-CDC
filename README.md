@@ -143,3 +143,45 @@ graph LR
     S_RD -- "RDATA, RRESP, RVALID" --> M_RD
     M_RD -. "RREADY" .-> S_RD
 ```
+## 3. write
+
+The bridge acts as an **APB Master**. It drives controls to the peripheral and waits for `PREADY`.
+
+```mermaid
+graph LR
+    %% --- Nodes & Subgraphs ---
+    subgraph AXI_Side [AXI4-Lite Master]
+        direction TB
+        AXI_M["AXI Write Logic"]
+    end
+    
+    subgraph Bridge_Scope [AXI-to-APB Bridge]
+        direction TB
+        DUT["Bridge Control"]
+    end
+
+    subgraph APB_Side [APB Slave]
+        direction TB
+        APB_S["Register/Memory"]
+    end
+
+    %% --- Styles ---
+    classDef master fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef bridge fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
+    classDef slave fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    
+    class AXI_M master;
+    class DUT bridge;
+    class APB_S slave;
+
+    %% --- Step 1: AXI Request ---
+    AXI_M -- "AWADDR, WDATA, WVALID" --> DUT
+    DUT -. "AWREADY, WREADY" .-> AXI_M
+
+    %% --- Step 2: APB Access ---
+    DUT -- "PSEL, PENABLE, PADDR<br/>PWDATA, PWRITE=1" --> APB_S
+    APB_S -. "PREADY, PSLVERR" .-> DUT
+
+    %% --- Step 3: AXI Response ---
+    DUT -- "BRESP, BVALID" --> AXI_M
+    AXI_M -. "BREADY" .-> DUT
