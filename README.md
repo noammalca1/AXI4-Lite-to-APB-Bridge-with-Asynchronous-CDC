@@ -71,38 +71,33 @@ graph LR
     %% Definitions
     subgraph APB_Master_Node [Bridge: APB Master FSM]
         direction TB
-        %% We use a single logic block, but arrows will show distinct flows
-        M_Logic["APB Control Logic"]
+        M_WR["Write Logic"]
+        M_RD["Read Logic"]
     end
 
     subgraph APB_Slave_Node [APB Slave / Peripheral]
         direction TB
-        S_Mem["Registers / Memory"]
+        S_WR["Write Logic<br/>(Register Update)"]
+        S_RD["Read Logic<br/>(Data Output)"]
     end
 
     %% Styles
     classDef master fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
     classDef slave fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
-    class M_Logic master;
-    class S_Mem slave;
+    class M_WR,M_RD master;
+    class S_WR,S_RD slave;
 
     %% ==========================================
-    %% WRITE TRANSACTION FLOW
+    %% WRITE CHANNEL (Logic)
     %% ==========================================
-    %% Master drives Setup + Data
-    M_Logic -- "Write Req:<br/>PSEL, PENABLE, PADDR<br/>PWDATA, PWRITE=1" --> S_Mem
-    
-    %% Slave responds
-    S_Mem -. "Write Rsp:<br/>PREADY, PSLVERR" .-> M_Logic
+    M_WR -- "PADDR, PWDATA<br/>PSEL, PENABLE, PWRITE=1" --> S_WR
+    S_WR -. "PREADY, PSLVERR" .-> M_WR
 
     %% ==========================================
-    %% READ TRANSACTION FLOW
+    %% READ CHANNEL (Logic)
     %% ==========================================
-    %% Master drives Setup (No Write Data)
-    M_Logic -- "Read Req:<br/>PSEL, PENABLE, PADDR<br/>PWRITE=0" --> S_Mem
-    
-    %% Slave responds with Data
-    S_Mem -. "Read Rsp:<br/>PREADY, PRDATA, PSLVERR" .-> M_Logic
+    M_RD -- "PADDR<br/>PSEL, PENABLE, PWRITE=0" --> S_RD
+    S_RD -. "PREADY, PRDATA, PSLVERR" .-> M_RD
 
 ```
 
