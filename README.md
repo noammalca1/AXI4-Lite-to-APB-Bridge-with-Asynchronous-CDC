@@ -60,3 +60,32 @@ graph LR
     RdRsp_FIFO -- Pop Data --> AXI_Slave
     AXI_Slave -- RDATA, RRESP --> AXI_Master
 ```
+graph LR
+    subgraph Master_Side ["AXI Master (Testbench / CPU)"]
+        direction TB
+    end
+
+    subgraph Slave_Side ["Bridge (AXI Slave)"]
+        direction TB
+    end
+
+    %% Write Address Channel
+    Master_Side -- "AWADDR, AWVALID" --> Slave_Side
+    Slave_Side -. "AWREADY" .-> Master_Side
+
+    %% Write Data Channel
+    Master_Side -- "WDATA, WSTRB, WVALID" --> Slave_Side
+    Slave_Side -. "WREADY" .-> Master_Side
+
+    %% Write Response Channel
+    Slave_Side -- "BRESP, BVALID" --> Master_Side
+    Master_Side -. "BREADY" .-> Slave_Side
+
+    %% Read Address Channel
+    Master_Side -- "ARADDR, ARVALID" --> Slave_Side
+    Slave_Side -. "ARREADY" .-> Master_Side
+
+    %% Read Data Channel
+    Slave_Side -- "RDATA, RRESP, RVALID" --> Master_Side
+    Master_Side -. "RREADY" .-> Slave_Side
+    ```
