@@ -103,23 +103,25 @@ The bridge acts as an **APB Master**. It drives controls to the peripheral and w
 
 ```mermaid
 graph LR
-    subgraph APB_Master ["Bridge (APB Master FSM)"]
-        direction TB
-    end
+    %% Styles
+    classDef master fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
+    classDef bridge fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
+    classDef slave fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
 
-    subgraph APB_Slave ["APB Slave (Peripheral / Memory)"]
-        direction TB
-    end
+    %% Nodes
+    AXI_M("AXI4-Lite Master"):::master
+    BRIDGE("AXI-to-APB Bridge"):::bridge
+    APB_S("APB Slave"):::slave
 
-    %% Control Signals (Setup & Access Phase)
-    APB_Master -- "PSEL (Select)" --> APB_Slave
-    APB_Master -- "PENABLE (Enable)" --> APB_Slave
-    APB_Master -- "PADDR (Address)" --> APB_Slave
-    APB_Master -- "PWRITE (Write=1/Read=0)" --> APB_Slave
-    APB_Master -- "PWDATA (Write Data)" --> APB_Slave
+    %% -- Forward Path (Command) --
+    AXI_M -- "AWADDR, WDATA, WVALID" --> BRIDGE
+    BRIDGE -. "AWREADY, WREADY" .-> AXI_M
+    
+    BRIDGE -- "PSEL, PENABLE, PADDR" --> APB_S
+    BRIDGE -- "PWDATA, PWRITE=1" --> APB_S
 
-    %% Response Signals
-    APB_Slave -- "PREADY (Ready)" --> APB_Master
-    APB_Slave -- "PRDATA (Read Data)" --> APB_Master
-    APB_Slave -- "PSLVERR (Error)" --> APB_Master
+    %% -- Return Path (Response) --
+    APB_S -. "PREADY" .-> BRIDGE
+    BRIDGE -- "BRESP, BVALID" --> AXI_M
+    AXI_M -. "BREADY" .-> BRIDGE
 ```
