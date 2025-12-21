@@ -43,10 +43,8 @@ graph LR
     Arbiter --> APB_FSM
     APB_FSM -- PADDR, PWDATA --> APB_Slaves
     
-    %% --- השינוי כאן: הוספתי את PRDATA ---
+    %% Response Path
     APB_Slaves -- PREADY, PSLVERR, PRDATA --> APB_FSM
-    %% ------------------------------------
-
     APB_FSM -- Push Resp --> WrRsp_FIFO
     WrRsp_FIFO -- Pop Resp --> AXI_Slave
     AXI_Slave -- BRESP --> AXI_Master
@@ -60,6 +58,10 @@ graph LR
     RdRsp_FIFO -- Pop Data --> AXI_Slave
     AXI_Slave -- RDATA, RRESP --> AXI_Master
 ```
+
+## AXI4-Lite Handshake Diagram
+
+```mermaid
 graph LR
     subgraph Master_Side ["AXI Master (Testbench / CPU)"]
         direction TB
@@ -88,4 +90,4 @@ graph LR
     %% Read Data Channel
     Slave_Side -- "RDATA, RRESP, RVALID" --> Master_Side
     Master_Side -. "RREADY" .-> Slave_Side
-    ```
+```
