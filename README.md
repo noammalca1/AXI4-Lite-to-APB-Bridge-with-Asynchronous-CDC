@@ -103,25 +103,40 @@ The bridge acts as an **APB Master**. It drives controls to the peripheral and w
 
 ```mermaid
 graph LR
+    %% Definitions and Styles
+    subgraph AXI_Side [AXI4-Lite Domain]
+        direction TB
+        AXI_M["AXI Master<br/>(TB/CPU)"]
+    end
+    
+    subgraph Bridge_Scope [The Bridge]
+        direction TB
+        DUT["AXI-to-APB Bridge"]
+    end
+
+    subgraph APB_Side [APB Domain]
+        direction TB
+        APB_S["APB Slave<br/>(Peripheral)"]
+    end
+
     %% Styles
-    classDef master fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
+    classDef master fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
     classDef bridge fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
     classDef slave fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
-
-    %% Nodes
-    AXI_M("AXI4-Lite Master"):::master
-    BRIDGE("AXI-to-APB Bridge"):::bridge
-    APB_S("APB Slave"):::slave
-
-    %% -- Forward Path (Command) --
-    AXI_M -- "AWADDR, WDATA, WVALID" --> BRIDGE
-    BRIDGE -. "AWREADY, WREADY" .-> AXI_M
     
-    BRIDGE -- "PSEL, PENABLE, PADDR" --> APB_S
-    BRIDGE -- "PWDATA, PWRITE=1" --> APB_S
+    class AXI_M master;
+    class DUT bridge;
+    class APB_S slave;
 
-    %% -- Return Path (Response) --
-    APB_S -. "PREADY" .-> BRIDGE
-    BRIDGE -- "BRESP, BVALID" --> AXI_M
-    AXI_M -. "BREADY" .-> BRIDGE
+    %% --- STEP 1: AXI Write Request ---
+    AXI_M -- "AWADDR, AWVALID<br/>WDATA, WSTRB, WVALID" --> DUT
+    DUT -. "AWREADY, WREADY" .-> AXI_M
+
+    %% --- STEP 2: APB Write Transaction ---
+    DUT -- "PSEL, PENABLE, PADDR<br/>PWDATA, PWRITE=1" --> APB_S
+    APB_S -. "PREADY" .-> DUT
+
+    %% --- STEP 3: AXI Write Response ---
+    DUT -- "BRESP, BVALID" --> AXI_M
+    AXI_M -. "BREADY" .-> DUT
 ```
