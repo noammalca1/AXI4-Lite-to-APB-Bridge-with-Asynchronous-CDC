@@ -68,33 +68,31 @@ The bridge acts as an **AXI Slave**. It accepts address and data from the master
 
 ```mermaid
 graph LR
-    subgraph Master_Side ["AXI Master (Testbench / CPU)"]
+    %% Definitions
+    subgraph APB_Master_Node [Bridge: APB Master FSM]
         direction TB
+        Bridge_Logic["Control Logic"]
     end
 
-    subgraph Slave_Side ["Bridge (AXI Slave)"]
+    subgraph APB_Slave_Node [APB Slave / Peripheral]
         direction TB
+        Slave_Mem["Registers / Memory"]
     end
 
-    %% Write Address Channel
-    Master_Side -- "AWADDR, AWVALID" --> Slave_Side
-    Slave_Side -. "AWREADY" .-> Master_Side
+    %% Styles
+    classDef master fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
+    classDef slave fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    class Bridge_Logic master;
+    class Slave_Mem slave;
 
-    %% Write Data Channel
-    Master_Side -- "WDATA, WSTRB, WVALID" --> Slave_Side
-    Slave_Side -. "WREADY" .-> Master_Side
+    %% --- WRITE TRANSACTION (PWRITE=1) ---
+    Bridge_Logic -- "PSEL, PENABLE, PADDR<br/>PWDATA, PWRITE=1" --> Slave_Mem
+    Slave_Mem -. "PREADY, PSLVERR" .-> Bridge_Logic
 
-    %% Write Response Channel
-    Slave_Side -- "BRESP, BVALID" --> Master_Side
-    Master_Side -. "BREADY" .-> Slave_Side
-
-    %% Read Address Channel
-    Master_Side -- "ARADDR, ARVALID" --> Slave_Side
-    Slave_Side -. "ARREADY" .-> Master_Side
-
-    %% Read Data Channel
-    Slave_Side -- "RDATA, RRESP, RVALID" --> Master_Side
-    Master_Side -. "RREADY" .-> Slave_Side
+    %% --- READ TRANSACTION (PWRITE=0) ---
+    %% Note: Signals are the same, just direction and data differ
+    Bridge_Logic -- "PSEL, PENABLE, PADDR<br/>PWRITE=0" --> Slave_Mem
+    Slave_Mem -. "PREADY, PRDATA" .-> Bridge_Logic
 ```
 
 ## 3. APB Handshake Diagram (Master Side)
