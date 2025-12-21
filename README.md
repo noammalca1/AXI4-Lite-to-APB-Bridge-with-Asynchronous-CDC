@@ -1,7 +1,10 @@
-# AXI4-Lite-to-APB-Bridge-with-Asynchronous-CDC
-Provide a small, easy-to-verify bridge that accepts AXI4-Lite transactions on the fast side and performs APB transfers to low-speed peripherals on the slow side. The bridge acts as an AXI4-Lite slave and as an APB master to selected peripherals, translating protocol and synchronizing clock domains. 
+# AXI4-Lite to APB Bridge with Asynchronous CDC
 
-## Data & Control Flow
+This project implements a robust bridge between an **AXI4-Lite** master (fast clock domain) and an **APB** slave (slow clock domain). It features asynchronous FIFOs for safe Clock Domain Crossing (CDC) and a fully verifiable testbench.
+
+## 1. System Data & Control Flow
+
+This diagram illustrates how data flows from the AXI Master, through the CDC FIFOs, to the APB FSM, and back.
 
 ```mermaid
 graph LR
@@ -59,7 +62,9 @@ graph LR
     AXI_Slave -- RDATA, RRESP --> AXI_Master
 ```
 
-## AXI4-Lite Handshake Diagram
+## 2. AXI4-Lite Handshake Diagram (Slave Side)
+
+The bridge acts as an **AXI Slave**. It accepts address and data from the master and provides responses.
 
 ```mermaid
 graph LR
@@ -90,4 +95,31 @@ graph LR
     %% Read Data Channel
     Slave_Side -- "RDATA, RRESP, RVALID" --> Master_Side
     Master_Side -. "RREADY" .-> Slave_Side
+```
+
+## 3. APB Handshake Diagram (Master Side)
+
+The bridge acts as an **APB Master**. It drives controls to the peripheral and waits for `PREADY`.
+
+```mermaid
+graph LR
+    subgraph APB_Master ["Bridge (APB Master FSM)"]
+        direction TB
+    end
+
+    subgraph APB_Slave ["APB Slave (Peripheral / Memory)"]
+        direction TB
+    end
+
+    %% Control Signals (Setup & Access Phase)
+    APB_Master -- "PSEL (Select)" --> APB_Slave
+    APB_Master -- "PENABLE (Enable)" --> APB_Slave
+    APB_Master -- "PADDR (Address)" --> APB_Slave
+    APB_Master -- "PWRITE (Write=1/Read=0)" --> APB_Slave
+    APB_Master -- "PWDATA (Write Data)" --> APB_Slave
+
+    %% Response Signals
+    APB_Slave -- "PREADY (Ready)" --> APB_Master
+    APB_Slave -- "PRDATA (Read Data)" --> APB_Master
+    APB_Slave -- "PSLVERR (Error)" --> APB_Master
 ```
