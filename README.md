@@ -67,32 +67,8 @@ graph LR
 The bridge acts as an **AXI Slave**. It accepts address and data from the master and provides responses.
 
 ```mermaid
-graph LR
-    %% Definitions
-    subgraph APB_Master_Node [Bridge: APB Master FSM]
-        direction TB
-        Bridge_Logic["Control Logic"]
-    end
+<img width="804" height="343" alt="image" src="https://github.com/user-attachments/assets/d7ab4635-ac1e-4870-b362-35190f6591df" />
 
-    subgraph APB_Slave_Node [APB Slave / Peripheral]
-        direction TB
-        Slave_Mem["Registers / Memory"]
-    end
-
-    %% Styles
-    classDef master fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
-    classDef slave fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
-    class Bridge_Logic master;
-    class Slave_Mem slave;
-
-    %% --- WRITE TRANSACTION (PWRITE=1) ---
-    Bridge_Logic -- "PSEL, PENABLE, PADDR<br/>PWDATA, PWRITE=1" --> Slave_Mem
-    Slave_Mem -. "PREADY, PSLVERR" .-> Bridge_Logic
-
-    %% --- READ TRANSACTION (PWRITE=0) ---
-    %% Note: Signals are the same, just direction and data differ
-    Bridge_Logic -- "PSEL, PENABLE, PADDR<br/>PWRITE=0" --> Slave_Mem
-    Slave_Mem -. "PREADY, PRDATA" .-> Bridge_Logic
 ```
 
 ## 3. APB Handshake Diagram (Master Side)
