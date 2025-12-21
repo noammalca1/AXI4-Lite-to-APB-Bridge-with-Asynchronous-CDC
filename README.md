@@ -103,40 +103,39 @@ The bridge acts as an **APB Master**. It drives controls to the peripheral and w
 
 ```mermaid
 graph LR
-    %% Definitions and Styles
-    subgraph AXI_Side [AXI4-Lite Domain]
+    %% Definitions
+    subgraph AXI_Master_Node [AXI Master]
         direction TB
-        AXI_M["AXI Master<br/>(TB/CPU)"]
-    end
-    
-    subgraph Bridge_Scope [The Bridge]
-        direction TB
-        DUT["AXI-to-APB Bridge"]
+        M_WR["Write Logic"]
+        M_RD["Read Logic"]
     end
 
-    subgraph APB_Side [APB Domain]
+    subgraph AXI_Slave_Node [Bridge: AXI Slave Interface]
         direction TB
-        APB_S["APB Slave<br/>(Peripheral)"]
+        S_WR["Write Channel FSM"]
+        S_RD["Read Channel FSM"]
     end
 
     %% Styles
     classDef master fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
-    classDef bridge fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
-    classDef slave fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef slave fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
+    class M_WR,M_RD master;
+    class S_WR,S_RD slave;
+
+    %% --- WRITE CHANNEL ---
+    M_WR -- "AWADDR, AWVALID" --> S_WR
+    S_WR -. "AWREADY" .-> M_WR
     
-    class AXI_M master;
-    class DUT bridge;
-    class APB_S slave;
+    M_WR -- "WDATA, WSTRB, WVALID" --> S_WR
+    S_WR -. "WREADY" .-> M_WR
 
-    %% --- STEP 1: AXI Write Request ---
-    AXI_M -- "AWADDR, AWVALID<br/>WDATA, WSTRB, WVALID" --> DUT
-    DUT -. "AWREADY, WREADY" .-> AXI_M
+    S_WR -- "BRESP, BVALID" --> M_WR
+    M_WR -. "BREADY" .-> S_WR
 
-    %% --- STEP 2: APB Write Transaction ---
-    DUT -- "PSEL, PENABLE, PADDR<br/>PWDATA, PWRITE=1" --> APB_S
-    APB_S -. "PREADY" .-> DUT
+    %% --- READ CHANNEL ---
+    M_RD -- "ARADDR, ARVALID" --> S_RD
+    S_RD -. "ARREADY" .-> M_RD
 
-    %% --- STEP 3: AXI Write Response ---
-    DUT -- "BRESP, BVALID" --> AXI_M
-    AXI_M -. "BREADY" .-> DUT
+    S_RD -- "RDATA, RRESP, RVALID" --> M_RD
+    M_RD -. "RREADY" .-> S_RD
 ```
