@@ -67,7 +67,42 @@ graph LR
 The bridge acts as an **AXI Slave**. It accepts address and data from the master and provides responses.
 
 ```mermaid
-<img width="804" height="343" alt="image" src="https://github.com/user-attachments/assets/d7ab4635-ac1e-4870-b362-35190f6591df" />
+graph LR
+    %% Definitions
+    subgraph APB_Master_Node [Bridge: APB Master FSM]
+        direction TB
+        %% We use a single logic block, but arrows will show distinct flows
+        M_Logic["APB Control Logic"]
+    end
+
+    subgraph APB_Slave_Node [APB Slave / Peripheral]
+        direction TB
+        S_Mem["Registers / Memory"]
+    end
+
+    %% Styles
+    classDef master fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
+    classDef slave fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    class M_Logic master;
+    class S_Mem slave;
+
+    %% ==========================================
+    %% WRITE TRANSACTION FLOW
+    %% ==========================================
+    %% Master drives Setup + Data
+    M_Logic -- "Write Req:<br/>PSEL, PENABLE, PADDR<br/>PWDATA, PWRITE=1" --> S_Mem
+    
+    %% Slave responds
+    S_Mem -. "Write Rsp:<br/>PREADY, PSLVERR" .-> M_Logic
+
+    %% ==========================================
+    %% READ TRANSACTION FLOW
+    %% ==========================================
+    %% Master drives Setup (No Write Data)
+    M_Logic -- "Read Req:<br/>PSEL, PENABLE, PADDR<br/>PWRITE=0" --> S_Mem
+    
+    %% Slave responds with Data
+    S_Mem -. "Read Rsp:<br/>PREADY, PRDATA, PSLVERR" .-> M_Logic
 
 ```
 
