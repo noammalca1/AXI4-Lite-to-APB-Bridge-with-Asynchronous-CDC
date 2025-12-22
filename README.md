@@ -1,6 +1,28 @@
 # AXI4-Lite to APB Bridge with Asynchronous CDC
 
-This project implements a robust bridge between an **AXI4-Lite** master (fast clock domain) and an **APB** slave (slow clock domain). It features asynchronous FIFOs for safe Clock Domain Crossing (CDC) and a fully verifiable testbench.
+![Language](https://img.shields.io/badge/Language-Verilog%2FSystemVerilog-blue)
+![Type](https://img.shields.io/badge/Type-FPGA%20IP%20Core-green)
+![Verification](https://img.shields.io/badge/Verification-Self--Checking%20TB-orange)
+
+**Author:** Noam Malca  
+**Institution:** Bar-Ilan University  
+**Focus:** Digital Design - Bus Protocols (AXI/APB), CDC, & Verification
+
+This project implements a robust bridge between a high-speed **AXI4-Lite** master (fast clock domain) and an **APB** slave (slow clock domain) in Verilog HDL. 
+It is designed to handle cross-domain data integrity using **Asynchronous FIFOs** for command and response paths, ensuring safe operation without metastability.
+
+The design includes a dedicated AXI Slave FSM, an APB Master FSM, and a custom **Clock Domain Crossing (CDC)** logic block utilizing Gray-coded pointers and 2-stage synchronizers (2FF). It is accompanied by a self-checking testbench (`tb_axi_apb_bridge_top`) that simulates real-world read/write transactions, verifies protocol compliance, and validates data consistency across asynchronous boundaries.
+
+---
+
+## Key Features
+* **Protocol Translation:** Converts AXI4-Lite transactions to APB 3.0 transfers.
+* **Robust CDC:** Uses dual-clock asynchronous FIFOs with Gray-code pointer exchange.
+* **Metastability Protection:** Implements 2FF synchronizers on all cross-domain control signals.
+* **Data Integrity:** Guarantees data consistency between fast (AXI) and slow (APB) clock domains.
+* **Full Verification:** Includes a behavioral APB slave model and automated transaction checkers.
+
+---
 
 ## 1. System Data & Control Flow
 
