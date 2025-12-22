@@ -242,6 +242,4 @@ graph LR
     Sync_W2R -- "wptr_gray_sync" --> R_Cmp
     R_Cmp -- "Match = Empty" --> Output_Empty("Output: empty")
 
-    %% --- CDC Crossings (2FF) ---
-    Sync_W2R -.-> R_Cmp
-    Sync_R2W -.-> W_Cmp
+
