@@ -169,19 +169,14 @@ This diagram details the architecture of the **Asynchronous FIFO** used for safe
 
 * **Write Domain:** Manages the write pointer and checks for the `full` condition by comparing against the synchronized read pointer.
 * **Read Domain:** Manages the read pointer and checks for the `empty` condition by comparing against the synchronized write pointer.
-* **Synchronization:** Pointers are converted to Gray code this prevents multi-bit synchronization errors (metastability), and passed through 2-stage synchronizers (`sync_2ff`) to safely cross clock domains.
-* **Comparator:** The Comparators are responsible for generating the status flags by comparing the local pointer against the synchronized pointer from the opposite domain.
-     Empty Comparator (Read Domain):
-
-Condition: Occurs when the synchronized write pointer exactly matches the read pointer (rgray_next == wptr_gray_sync).
-
-Meaning: The pointers are identical, meaning the buffer is empty and reading must be disabled.
-
-Full Comparator (Write Domain):
-
-Condition: Occurs when the write pointer "wraps around" and catches the read pointer. In Gray Code, this is detected when the two MSBs are different (inverted) and all remaining LSBs match.
-
-Meaning: The buffer is full and writing must be disabled to prevent data overwrite.
+* **Synchronization:** Pointers are converted to Gray Code to prevent multi-bit synchronization errors (metastability) and passed through 2-stage synchronizers (`sync_2ff`) to safely cross clock domains.
+* **Comparator Logic:** The Comparators generate the status flags by comparing the local pointer against the synchronized pointer from the opposite domain.
+    * **Empty Detection Logic (Read Domain):**
+        * **Condition:** Occurs when the synchronized write pointer exactly matches the read pointer (`rgray_next == wptr_gray_sync`).
+        * **Meaning:** The pointers are identical, meaning the buffer is empty and reading must be disabled.
+    * **Full Detection Logic (Write Domain):**
+        * **Condition:** Occurs when the write pointer "wraps around" and catches the read pointer. In Gray Code, this is detected when the **two MSBs are different (inverted)** and all remaining LSBs match.
+        * **Meaning:** The buffer is full and writing must be disabled to prevent data overwrite
 
 ```mermaid
 graph LR
