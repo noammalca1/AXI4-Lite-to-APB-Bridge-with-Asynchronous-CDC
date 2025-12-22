@@ -7,12 +7,12 @@
 This project implements a robust bridge between a high-speed **AXI4-Lite** master (fast clock domain) and an **APB** slave (slow clock domain) in Verilog HDL. 
 It is designed to handle cross-domain data integrity using **Asynchronous FIFOs** for command and response paths, ensuring safe operation without metastability.
 
-The design includes a dedicated AXI Slave FSM, an APB Master FSM, and a custom **Clock Domain Crossing (CDC)** logic block utilizing Gray-coded pointers and 2-stage synchronizers (2FF). It is accompanied by a self-checking testbench (`tb_axi_apb_bridge_top`) that simulates real-world read/write transactions, verifies protocol compliance, and validates data consistency across asynchronous boundaries.
+The design includes a dedicated AXI Slave FSM, an APB Master FSM, and a custom **Clock Domain Crossing (CDC)** logic block utilizing Gray-coded pointers and 2-stage synchronizers (2FF). It is accompanied by a self-checking testbench.
 
 ---
 
 ## Key Features
-* **Protocol Translation:** Converts AXI4-Lite transactions to APB 3.0 transfers.
+* **Protocol Translation:** Converts AXI4-Lite transactions to APB transfers.
 * **Robust CDC:** Uses dual-clock asynchronous FIFOs with Gray-code pointer exchange.
 * **Metastability Protection:** Implements 2FF synchronizers on all cross-domain control signals.
 * **Data Integrity:** Guarantees data consistency between fast (AXI) and slow (APB) clock domains.
@@ -79,6 +79,7 @@ graph LR
     RdRsp_FIFO -- Pop Data --> AXI_Slave
     AXI_Slave -- RDATA, RRESP --> AXI_Master
 ```
+---
 ## End-to-End Transaction Logic
 
 The diagrams below illustrate the complete data and control flow for both **Write** and **Read** transactions. They demonstrate how the Bridge translates protocols between the high-speed AXI4-Lite domain and the lower-speed APB domain.
