@@ -186,7 +186,7 @@ graph LR
         WR_Logic["Write Ptr Logic<br/>(Counter)"]
         W_B2G["B2G Converter<br/>(Binary to Gray)"]
         W_Cmp{"Comparator<br/>(Check Full)"}
-        RAM_WR["Dual-Port RAM<br/>(Write Port)"]
+        RAM_WR["Memory Array<br/>(Write Port)"]
     end
 
     subgraph Read_Domain [Read Clock Domain]
@@ -194,7 +194,7 @@ graph LR
         RD_Logic["Read Ptr Logic<br/>(Counter)"]
         R_B2G["B2G Converter<br/>(Binary to Gray)"]
         R_Cmp{"Comparator<br/>(Check Empty)"}
-        RAM_RD["Dual-Port RAM<br/>(Read Port)"]
+        RAM_RD["Memory Array<br/>(Read Port)"]
     end
 
     subgraph CDC_Sync [CDC Synchronization]
