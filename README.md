@@ -173,59 +173,57 @@ This diagram details the architecture of the **Asynchronous FIFO** used for safe
 
 ```mermaid
 graph LR
-    %% --- Subgraphs ---
-    subgraph Write_Domain [Write Domain (ACLK)]
+    %% --- Subgraphs for Clock Domains ---
+    subgraph Write_Domain [Write Clock Domain]
         direction TB
-        %% Nodes
-        CLK_A[("ACLK")]
-        W_Log["Write Logic<br/>(Counter + B2G + Full)"]
-        RAM_W["RAM Write Port"]
-        
-        %% Connections
-        CLK_A --> W_Log
-        CLK_A --> RAM_W
-        W_Log -- "wptr_bin (Addr)" --> RAM_W
-        W_Log --> Full((Full))
+        WR_Logic["Write Ptr & Full Logic<br/>(fifo_wptr_full)"]
+        W_B2G["B2G Converter<br/>(Binary to Gray)"]
+        RAM_WR["Dual-Port RAM<br/>(Write Port)"]
     end
 
-    subgraph Read_Domain [Read Domain (PCLK)]
+    subgraph Read_Domain [Read Clock Domain]
         direction TB
-        %% Nodes
-        CLK_P[("PCLK")]
-        R_Log["Read Logic<br/>(Counter + B2G + Empty)"]
-        RAM_R["RAM Read Port"]
-        
-        %% Connections
-        CLK_P --> R_Log
-        CLK_P --> RAM_R
-        R_Log -- "rptr_bin (Addr)" --> RAM_R
-        R_Log --> Empty((Empty))
+        RD_Logic["Read Ptr & Empty Logic<br/>(fifo_rptr_empty)"]
+        R_B2G["B2G Converter<br/>(Binary to Gray)"]
+        RAM_RD["Dual-Port RAM<br/>(Read Port)"]
     end
 
-    subgraph Synchronization [Cross-Domain Sync]
+    subgraph CDC_Sync [CDC Synchronization]
         direction TB
-        Sync_W2R["2FF Synchronizer<br/>(Sync W-Ptr to PCLK)"]
-        Sync_R2W["2FF Synchronizer<br/>(Sync R-Ptr to ACLK)"]
+        Sync_W2R["2FF Synchronizer<br/>(W-Ptr to Read)"]
+        Sync_R2W["2FF Synchronizer<br/>(R-Ptr to Write)"]
     end
 
     %% --- Styles ---
-    classDef clk fill:#ffcc80,stroke:#ef6c00,stroke-width:2px;
-    classDef logic fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
+    classDef wr fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
+    classDef rd fill:#fff3e0,stroke:#e65100,stroke-width:2px;
     classDef sync fill:#e0e0e0,stroke:#616161,stroke-width:2px,stroke-dasharray: 5 5;
+    classDef logic fill:#f5f5f5,stroke:#616161,stroke-width:1px;
 
-    class CLK_A,CLK_P clk;
-    class W_Log,RAM_W,R_Log,RAM_R logic;
+    class WR_Logic,RAM_WR,W_B2G wr;
+    class RD_Logic,RAM_RD,R_B2G rd;
     class Sync_W2R,Sync_R2W sync;
 
-    %% --- CDC Connections ---
-    %% Write Ptr (Gray) -> Sync -> Read Logic
-    W_Log -- "wptr_gray" --> Sync_W2R
-    Sync_W2R -- "wptr_gray_sync" --> R_Log
-
-    %% Read Ptr (Gray) -> Sync -> Write Logic
-    R_Log -- "rptr_gray" --> Sync_R2W
-    Sync_R2W -- "rptr_gray_sync" --> W_Log
+    %% --- Write Path Connections ---
+    Input_WR("wr_en, wr_data") --> WR_Logic
+    WR_Logic -- "wptr_bin (addr)" --> RAM_WR
+    Input_WR --> RAM_WR
+    WR_Logic -- "full" --> Output_Full("Output: full")
     
-    %% Data Flow
-    Data_In(Data In) --> RAM_W
-    RAM_R --> Data_Out(Data Out)
+    %% B2G Conversion (Explicit)
+    WR_Logic -- "wptr_bin" --> W_B2G
+    W_B2G -- "wptr_gray" --> Sync_W2R
+
+    %% --- Read Path Connections ---
+    Input_RD("rd_en") --> RD_Logic
+    RD_Logic -- "rptr_bin (addr)" --> RAM_RD
+    RAM_RD -- "rd_data" --> Output_Data("Output: rd_data")
+    RD_Logic -- "empty" --> Output_Empty("Output: empty")
+
+    %% B2G Conversion (Explicit)
+    RD_Logic -- "rptr_bin" --> R_B2G
+    R_B2G -- "rptr_gray" --> Sync_R2W
+
+    %% --- CDC Crossings (2FF) ---
+    Sync_W2R -- "wptr_gray_sync" --> RD_Logic
+    Sync_R2W -- "rptr_gray_sync" --> WR_Logic
