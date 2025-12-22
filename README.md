@@ -104,9 +104,6 @@ graph LR
     DUT -- "BRESP, BVALID" --> AXI_M
     AXI_M -. "BREADY" .-> DUT
 ```
-## 3. read
-
-The bridge acts as an **APB Master**. It drives controls to the peripheral and waits for `PREADY`.
 
 ```mermaid
 graph LR
