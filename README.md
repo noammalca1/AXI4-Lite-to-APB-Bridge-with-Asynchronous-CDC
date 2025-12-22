@@ -163,7 +163,7 @@ graph LR
     %% Master accepts response
     AXI_M -. "RREADY" .-> DUT
 ```
-### 10. Asynchronous FIFO Design (CDC)
+### 3. Asynchronous FIFO Design (CDC)
 
 This diagram details the architecture of the **Asynchronous FIFO** used for safe Clock Domain Crossing. It ensures data integrity between the fast AXI domain and the slow APB domain using Gray-coded pointers.
 
