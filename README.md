@@ -136,6 +136,7 @@ graph LR
     DUT -- "BRESP, BVALID" --> AXI_M
     AXI_M -. "BREADY" .-> DUT
 ```
+---
 
 ```mermaid
 graph LR
@@ -182,6 +183,7 @@ graph LR
     %% Master accepts response
     AXI_M -. "RREADY" .-> DUT
 ```
+---
 ### 3. Asynchronous FIFO Design (CDC)
 
 This diagram details the architecture of the **Asynchronous FIFO** used for safe Clock Domain Crossing. It ensures data integrity between the fast AXI domain and the slow APB domain using Gray-coded pointers.
@@ -260,5 +262,5 @@ graph LR
     R_B2G -- "rptr_gray" --> R_Cmp
     Sync_W2R -- "wptr_gray_sync" --> R_Cmp
     R_Cmp -- "Match = Empty" --> Output_Empty("Output: empty")
-
-
+```
+---
