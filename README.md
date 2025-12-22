@@ -176,15 +176,17 @@ graph LR
     %% --- Subgraphs for Clock Domains ---
     subgraph Write_Domain [Write Clock Domain]
         direction TB
-        WR_Logic["Write Ptr & Full Logic<br/>(fifo_wptr_full)"]
+        WR_Logic["Write Ptr Logic<br/>(Counter)"]
         W_B2G["B2G Converter<br/>(Binary to Gray)"]
+        W_Cmp{"Comparator<br/>(Check Full)"}
         RAM_WR["Dual-Port RAM<br/>(Write Port)"]
     end
 
     subgraph Read_Domain [Read Clock Domain]
         direction TB
-        RD_Logic["Read Ptr & Empty Logic<br/>(fifo_rptr_empty)"]
+        RD_Logic["Read Ptr Logic<br/>(Counter)"]
         R_B2G["B2G Converter<br/>(Binary to Gray)"]
+        R_Cmp{"Comparator<br/>(Check Empty)"}
         RAM_RD["Dual-Port RAM<br/>(Read Port)"]
     end
 
@@ -198,32 +200,41 @@ graph LR
     classDef wr fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
     classDef rd fill:#fff3e0,stroke:#e65100,stroke-width:2px;
     classDef sync fill:#e0e0e0,stroke:#616161,stroke-width:2px,stroke-dasharray: 5 5;
-    classDef logic fill:#f5f5f5,stroke:#616161,stroke-width:1px;
+    classDef cmp fill:#fff9c4,stroke:#fbc02d,stroke-width:2px; 
 
     class WR_Logic,RAM_WR,W_B2G wr;
     class RD_Logic,RAM_RD,R_B2G rd;
     class Sync_W2R,Sync_R2W sync;
+    class W_Cmp,R_Cmp cmp;
 
     %% --- Write Path Connections ---
     Input_WR("wr_en, wr_data") --> WR_Logic
     WR_Logic -- "wptr_bin (addr)" --> RAM_WR
     Input_WR --> RAM_WR
-    WR_Logic -- "full" --> Output_Full("Output: full")
     
-    %% B2G Conversion (Explicit)
+    %% B2G & Sync Flow
     WR_Logic -- "wptr_bin" --> W_B2G
     W_B2G -- "wptr_gray" --> Sync_W2R
+    
+    %% Full Flag Generation (Comparator)
+    W_B2G -- "wptr_gray" --> W_Cmp
+    Sync_R2W -- "rptr_gray_sync" --> W_Cmp
+    W_Cmp -- "Match = Full" --> Output_Full("Output: full")
 
     %% --- Read Path Connections ---
     Input_RD("rd_en") --> RD_Logic
     RD_Logic -- "rptr_bin (addr)" --> RAM_RD
     RAM_RD -- "rd_data" --> Output_Data("Output: rd_data")
-    RD_Logic -- "empty" --> Output_Empty("Output: empty")
-
-    %% B2G Conversion (Explicit)
+    
+    %% B2G & Sync Flow
     RD_Logic -- "rptr_bin" --> R_B2G
     R_B2G -- "rptr_gray" --> Sync_R2W
 
+    %% Empty Flag Generation (Comparator)
+    R_B2G -- "rptr_gray" --> R_Cmp
+    Sync_W2R -- "wptr_gray_sync" --> R_Cmp
+    R_Cmp -- "Match = Empty" --> Output_Empty("Output: empty")
+
     %% --- CDC Crossings (2FF) ---
-    Sync_W2R -- "wptr_gray_sync" --> RD_Logic
-    Sync_R2W -- "rptr_gray_sync" --> WR_Logic
+    Sync_W2R -.-> R_Cmp
+    Sync_R2W -.-> W_Cmp
