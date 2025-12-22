@@ -173,52 +173,57 @@ This diagram details the architecture of the **Asynchronous FIFO** used for safe
 
 ```mermaid
 graph LR
-    %% --- Define Styles ---
-    classDef tb_infra fill:#f5f5f5,stroke:#616161,stroke-width:1px,stroke-dasharray: 5 5;
-    classDef driver fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
-    classDef dut fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
-    classDef slave_model fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
-
-    %% --- Main Container ---
-    subgraph TB_Top [tb_axi_apb_bridge_top]
-        direction LR
-        
-        %% Infrastructure
-        CLK_RST["Clock & Reset Gen<br/>(ACLK, PCLK, Resets)"]:::tb_infra
-
-        %% Driver Side
-        subgraph AXI_Stimulus [AXI Master Driver & Monitor]
-            direction TB
-            Tasks["AXI Tasks<br/>(issue_write/read)"]:::driver
-            MainTest["Main Test Sequence<br/>(initial begin...)"]:::driver
-            Checkers["Handshake Counters<br/>& Data Checkers"]:::driver
-        end
-
-        %% The Design Under Test
-        DUT["DUT:<br/>axi_apb_bridge_top"]:::dut
-
-        %% Slave Side
-        subgraph Slave_Model [APB Slave Behavioral Model]
-            direction TB
-            MemArray["Memory Array<br/>mem[0:15]"]:::slave_model
-            SlaveLogic["PREADY & PRDATA Logic<br/>(always_comb/ff)"]:::slave_model
-        end
-
-        %% --- Connections ---
-        %% Clocks feeding everything
-        CLK_RST ==> AXI_Stimulus
-        CLK_RST ==> DUT
-        CLK_RST ==> Slave_Model
-
-        %% AXI Interface flow
-        Tasks -- "AXI Stimulus<br/>(AW, W, AR Channels)" --> DUT
-        DUT -- "AXI Responses<br/>(B, R Channels)" --> Tasks
-        DUT -.- Checkers
-
-        %% APB Interface flow
-        DUT -- "APB Commands<br/>(PSEL, PENABLE, PWRITE, PWDATA)" --> SlaveLogic
-        SlaveLogic -- "APB Responses<br/>(PREADY, PRDATA)" --> DUT
-        
-        %% Internal Slave Model connection
-        SlaveLogic <--> MemArray
+    %% --- Subgraphs for Clock Domains ---
+    subgraph Write_Domain [Write Clock Domain]
+        direction TB
+        WR_Logic["Write Ptr & Full Logic<br/>(fifo_wptr_full)"]
+        W_B2G["B2G Converter<br/>(Binary to Gray)"]
+        RAM_WR["Dual-Port RAM<br/>(Write Port)"]
     end
+
+    subgraph Read_Domain [Read Clock Domain]
+        direction TB
+        RD_Logic["Read Ptr & Empty Logic<br/>(fifo_rptr_empty)"]
+        R_B2G["B2G Converter<br/>(Binary to Gray)"]
+        RAM_RD["Dual-Port RAM<br/>(Read Port)"]
+    end
+
+    subgraph CDC_Sync [CDC Synchronization]
+        direction TB
+        Sync_W2R["2FF Synchronizer<br/>(W-Ptr to Read)"]
+        Sync_R2W["2FF Synchronizer<br/>(R-Ptr to Write)"]
+    end
+
+    %% --- Styles ---
+    classDef wr fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
+    classDef rd fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+    classDef sync fill:#e0e0e0,stroke:#616161,stroke-width:2px,stroke-dasharray: 5 5;
+    classDef logic fill:#f5f5f5,stroke:#616161,stroke-width:1px;
+
+    class WR_Logic,RAM_WR,W_B2G wr;
+    class RD_Logic,RAM_RD,R_B2G rd;
+    class Sync_W2R,Sync_R2W sync;
+
+    %% --- Write Path Connections ---
+    Input_WR("wr_en, wr_data") --> WR_Logic
+    WR_Logic -- "wptr_bin (addr)" --> RAM_WR
+    Input_WR --> RAM_WR
+    WR_Logic -- "full" --> Output_Full("Output: full")
+    
+    %% B2G Conversion (Explicit)
+    WR_Logic -- "wptr_bin" --> W_B2G
+    W_B2G -- "wptr_gray" --> Sync_W2R
+
+    %% --- Read Path Connections ---
+    Input_RD("rd_en") --> RD_Logic
+    RD_Logic -- "rptr_bin (addr)" --> RAM_RD
+    RAM_RD -- "rd_data" --> Output_Data("Output: rd_data")
+    RD_Logic -- "empty" --> Output_Empty("Output: empty")
+
+    %% B2G Conversion (Explicit)
+    RD_Logic -- "rptr_bin" --> R_B2G
+    R_B2G -- "rptr_gray" --> Sync_R2W
+
+    %% --- CDC Crossings (2FF) ---
+    Sync_W2R -- "wptr_gray_sync" --> RD_Logic
+    Sync_R2W -- "rptr_gray_sync" --> WR_Logic
