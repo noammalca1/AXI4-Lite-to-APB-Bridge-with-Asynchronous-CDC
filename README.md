@@ -162,3 +162,63 @@ graph LR
     DUT -- "RDATA, RRESP, RVALID" --> AXI_M
     %% Master accepts response
     AXI_M -. "RREADY" .-> DUT
+```
+### 10. Asynchronous FIFO Design (CDC)
+
+This diagram details the architecture of the **Asynchronous FIFO** used for safe Clock Domain Crossing. It ensures data integrity between the fast AXI domain and the slow APB domain using Gray-coded pointers.
+
+* **Write Domain:** Manages the write pointer and checks for the `full` condition by comparing against the synchronized read pointer.
+* **Read Domain:** Manages the read pointer and checks for the `empty` condition by comparing against the synchronized write pointer.
+* **Synchronization:** Pointers are converted to Gray code and passed through 2-stage synchronizers (`sync_2ff`) to safely cross clock domains.
+
+```mermaid
+graph LR
+    %% --- Subgraphs for Clock Domains ---
+    subgraph Write_Domain [Write Clock Domain]
+        direction TB
+        WR_Logic["Write Ptr & Full Logic<br/>(fifo_wptr_full)"]
+        RAM_WR["Dual-Port RAM<br/>(Write Port)"]
+    end
+
+    subgraph Read_Domain [Read Clock Domain]
+        direction TB
+        RD_Logic["Read Ptr & Empty Logic<br/>(fifo_rptr_empty)"]
+        RAM_RD["Dual-Port RAM<br/>(Read Port)"]
+    end
+
+    subgraph CDC_Sync [CDC Synchronization]
+        direction TB
+        Sync_W2R["Sync W-Ptr to Read<br/>(sync_2ff)"]
+        Sync_R2W["Sync R-Ptr to Write<br/>(sync_2ff)"]
+    end
+
+    %% --- Styles ---
+    classDef wr fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
+    classDef rd fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+    classDef sync fill:#e0e0e0,stroke:#616161,stroke-width:2px,stroke-dasharray: 5 5;
+
+    class WR_Logic,RAM_WR wr;
+    class RD_Logic,RAM_RD rd;
+    class Sync_W2R,Sync_R2W sync;
+
+    %% --- Write Path Connections ---
+    Input_WR("wr_en, wr_data") --> WR_Logic
+    WR_Logic -- "wptr_bin (addr)" --> RAM_WR
+    Input_WR --> RAM_WR
+    WR_Logic -- "full" --> Output_Full("Output: full")
+    
+    %% Send Write Ptr (Gray) to Read Domain
+    WR_Logic -- "wptr_gray" --> Sync_W2R
+
+    %% --- Read Path Connections ---
+    Input_RD("rd_en") --> RD_Logic
+    RD_Logic -- "rptr_bin (addr)" --> RAM_RD
+    RAM_RD -- "rd_data" --> Output_Data("Output: rd_data")
+    RD_Logic -- "empty" --> Output_Empty("Output: empty")
+
+    %% Send Read Ptr (Gray) to Write Domain
+    RD_Logic -- "rptr_gray" --> Sync_R2W
+
+    %% --- CDC Crossings ---
+    Sync_W2R -- "wptr_gray_sync" --> RD_Logic
+    Sync_R2W -- "rptr_gray_sync" --> WR_Logic
