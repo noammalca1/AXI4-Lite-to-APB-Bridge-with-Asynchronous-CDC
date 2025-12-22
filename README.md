@@ -61,10 +61,22 @@ graph LR
     RdRsp_FIFO -- Pop Data --> AXI_Slave
     AXI_Slave -- RDATA, RRESP --> AXI_Master
 ```
-## 3. write
+## End-to-End Transaction Logic
 
-The bridge acts as an **APB Master**. It drives controls to the peripheral and waits for `PREADY`.
+The diagrams below illustrate the complete data and control flow for both Write and Read transactions. They demonstrate how the Bridge translates protocols between the high-speed AXI4-Lite domain and the lower-speed APB domain.
+**1. Write Transaction Flow (Top Diagram)**
+This flow demonstrates a complete write operation:
+-**Initiation:** The AXI4-Lite Master drives the write address (AWADDR) and write data (WDATA).
+-**Translation:** The Bridge captures these signals and initiates an APB write cycle by asserting the select signal (PSEL), enable signal (PENABLE), and setting PWRITE=1.
+-**Completion:** The APB Slave captures the data and asserts PREADY. The Bridge then completes the handshake by sending a write response (BRESP) back to the AXI Master.
+-**Translation:** The Bridge captures these signals and initiates an APB write cycle by asserting the select signal (PSEL), enable signal (PENABLE), and setting PWRITE=1.
+-**Completion:** The APB Slave captures the data and asserts PREADY. The Bridge then completes the handshake by sending a write response (BRESP) back to the AXI Master.
 
+**2. Read Transaction Flow (Bottom Diagram)**
+This flow demonstrates a complete read operation:
+-**Initiation:** The AXI4-Lite Master drives the read address (ARADDR).
+-**Translation:** The Bridge initiates an APB read cycle by setting PWRITE=0. It waits for the peripheral to provide data.
+-**Data Return:** The APB Slave places the requested data on PRDATA and asserts PREADY. The Bridge captures this data and drives it back to the AXI Master via the RDATA channel
 ```mermaid
 graph LR
     %% --- Nodes & Subgraphs ---
