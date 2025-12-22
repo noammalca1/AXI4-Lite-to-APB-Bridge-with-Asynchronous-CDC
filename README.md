@@ -169,7 +169,9 @@ This diagram details the architecture of the **Asynchronous FIFO** used for safe
 
 * **Write Domain:** Manages the write pointer and checks for the `full` condition by comparing against the synchronized read pointer.
 * **Read Domain:** Manages the read pointer and checks for the `empty` condition by comparing against the synchronized write pointer.
-* **Synchronization:** Pointers are converted to Gray code and passed through 2-stage synchronizers (`sync_2ff`) to safely cross clock domains.
+* **Synchronization:** Pointers are converted to Gray code this prevents multi-bit synchronization errors (metastability), and passed through 2-stage synchronizers (`sync_2ff`) to safely cross clock domains.
+* **Comparator:** The Comparators are responsible for generating the status flags by comparing the local pointer against the synchronized pointer from the opposite domain.
+      * Empty condition (Read Domain):
 
 ```mermaid
 graph LR
