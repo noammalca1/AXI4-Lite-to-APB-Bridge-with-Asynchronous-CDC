@@ -1,9 +1,5 @@
 # AXI4-Lite to APB Bridge with Asynchronous CDC
 
-![Language](https://img.shields.io/badge/Language-Verilog%2FSystemVerilog-blue)
-![Type](https://img.shields.io/badge/Type-FPGA%20IP%20Core-green)
-![Verification](https://img.shields.io/badge/Verification-Self--Checking%20TB-orange)
-
 **Author:** Noam Malca  
 **Institution:** Bar-Ilan University  
 **Focus:** Digital Design - Bus Protocols (AXI/APB), CDC, & Verification
