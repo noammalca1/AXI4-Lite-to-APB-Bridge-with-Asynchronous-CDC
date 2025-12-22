@@ -136,7 +136,6 @@ graph LR
     DUT -- "BRESP, BVALID" --> AXI_M
     AXI_M -. "BREADY" .-> DUT
 ```
----
 
 ```mermaid
 graph LR
