@@ -284,3 +284,8 @@ To ensure that the bridge **does not output invalid ("garbage") data** while wai
 2.  **Phase 2: The Release (PREADY = 1)**
     * **Data Availability:** As soon as `PREADY` goes High, the data is pushed into the FIFO, causing `rd_rsp_fifo_empty` to drop to **Low**.
     * **Transaction Completion:** Immediately after the FIFO becomes non-empty, the bridge asserts `RVALID`. Since `RREADY` is already High, a valid handshake occurs, and the read transaction is successfully closed.
+---
+
+
+
+
