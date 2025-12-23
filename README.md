@@ -263,3 +263,22 @@ graph LR
     R_Cmp -- "Match = Empty" --> Output_Empty("Output: empty")
 ```
 ---
+### Test 0: Read Request with APB Stall & Recovery
+
+This test verifies the system's robustness when the **AXI Master initiates a read transaction** (`ARADDR`) while the **APB Slave is not ready** (`PREADY=0`), and validates the correct completion once the Slave becomes ready.
+
+**Objective:**
+To ensure that the bridge **does not output invalid ("garbage") data** while waiting, and correctly completes the handshake **only after** valid data is available.
+
+**Waveform Analysis:**
+<img width="1289" height="397" alt="image" src="https://github.com/user-attachments/assets/1b382363-372d-49bb-a0ee-bcc800f8ec95" />
+
+
+1.  **Phase 1: The Stall (PREADY = 0)**
+    * **Address Capture:** The AXI Master drives the address, and the bridge captures it (`araddr_reg` updates).
+    * **System Freeze:** Since `PREADY` is Low, the `rd_rsp_fifo_empty` signal remains **High**.
+    * **Clean Wait:** Even though the Master is ready to receive data (`RREADY=1`), the bridge keeps `RVALID` at **0**. This emphasizes that **absolutely no transaction occurs** until the APB side is ready.
+
+2.  **Phase 2: The Release (PREADY = 1)**
+    * **Data Availability:** As soon as `PREADY` goes High, the data is pushed into the FIFO, causing `rd_rsp_fifo_empty` to drop to **Low**.
+    * **Transaction Completion:** Immediately after the FIFO becomes non-empty, the bridge asserts `RVALID`. Since `RREADY` is already High, a valid handshake occurs, and the read transaction is successfully closed.
