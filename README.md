@@ -1,4 +1,4 @@
-# AXI4-Lite to APB Bridge with Asynchronous CDC
+<img width="1294" height="400" alt="image" src="https://github.com/user-attachments/assets/57b6c473-dd20-41a0-9b33-d99cfff166d7" /># AXI4-Lite to APB Bridge with Asynchronous CDC
 
 **Author:** Noam Malca  
 **Institution:** Bar-Ilan University  
@@ -271,7 +271,8 @@ This test verifies the system's robustness when the **AXI Master initiates a rea
 To ensure that the bridge **does not output invalid ("garbage") data** while waiting, and correctly completes the handshake **only after** valid data is available.
 
 **Waveform Analysis:**
-<img width="1289" height="397" alt="image" src="https://github.com/user-attachments/assets/1b382363-372d-49bb-a0ee-bcc800f8ec95" />
+<img width="1294" height="400" alt="image" src="https://github.com/user-attachments/assets/d072244b-2943-4406-b13a-fa9226e71a26" />
+
 
 
 1.  **Phase 1: The Stall (PREADY = 0)**
