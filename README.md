@@ -294,8 +294,8 @@ This test evaluates the bridge's flow control mechanisms by flooding the system 
 To verify that the system correctly buffers data up to its maximum capacity (FIFO + Output Stage) and exerts backpressure on the AXI Master when full, preventing data loss.
 
 **Waveform Analysis:**
-![Test 1 Waveform](link_to_your_image/test1_wave.png)
-*(Note: Update the link to your actual image file)*
+<img width="1281" height="568" alt="image" src="https://github.com/user-attachments/assets/75b2aca5-bbb7-4a04-bb30-e02cbdd53f3c" />
+
 
 1.  **Capacity Analysis (FIFO + 1):**
     * The system utilizes a **Depth-4 FIFO**, yet it successfully accepts **5 Write Commands** before blocking.
