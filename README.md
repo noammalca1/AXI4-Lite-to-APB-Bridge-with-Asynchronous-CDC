@@ -271,7 +271,8 @@ This test verifies the system's robustness when the **AXI Master initiates a rea
 To ensure that the bridge **does not output invalid ("garbage") data** while waiting, and correctly completes the handshake **only after** valid data is available.
 
 **Waveform Analysis:**
-<img width="1294" height="400" alt="image" src="https://github.com/user-attachments/assets/57b6c473-dd20-41a0-9b33-d99cfff166d7" />
+<img width="1263" height="350" alt="image" src="https://github.com/user-attachments/assets/d590eaa9-27c9-412b-a1f1-626b53f6af15" />
+
 
 
 
