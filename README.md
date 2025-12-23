@@ -286,6 +286,29 @@ To ensure that the bridge **does not output invalid ("garbage") data** while wai
     * **Transaction Completion:** Immediately after the FIFO becomes non-empty, the bridge asserts `RVALID`. Since `RREADY` is already High, a valid handshake occurs, and the read transaction is successfully closed.
 ---
 
+### Test 1: Write Burst with Backpressure (APB Stall)
 
+This test evaluates the bridge's flow control mechanisms by flooding the system with **6 consecutive write commands** while the APB Slave is stalled (`PREADY=0`).
+
+**Objective:**
+To verify that the system correctly buffers data up to its maximum capacity (FIFO + Output Stage) and exerts backpressure on the AXI Master when full, preventing data loss.
+
+**Waveform Analysis:**
+![Test 1 Waveform](link_to_your_image/test1_wave.png)
+*(Note: Update the link to your actual image file)*
+
+1.  **Capacity Analysis (FIFO + 1):**
+    * The system utilizes a **Depth-4 FIFO**, yet it successfully accepts **5 Write Commands** before blocking.
+    * **Reasoning:** Command #1 immediately propagates to the APB Driver (the "Holding Stage"), freeing up a slot in the FIFO. Consequently, the FIFO buffers Commands #2, #3, #4, and #5.
+    * **Backpressure:** When Command #6 attempts to enter, the system is fully saturated. The bridge correctly de-asserts `AWREADY`/`WREADY`, blocking the 6th command until space becomes available.
+
+2.  **FSM & Signal Behavior:**
+    * **State Transition:** Following the handshake (`req_valid` & `req_ready`), the APB FSM transitions from **IDLE** to **SETUP**, capturing the address and data of Command #1.
+    * **Stall in ACCESS Phase:** In the next cycle, the FSM moves to **ACCESS** and asserts `PENABLE`. However, since `PREADY` is Low, the FSM holds this state, keeping Command #1 valid on the bus.
+    * **Data Integrity:** The waveform shows that Command #5's data is safely stored in the FIFO but is **not written to the Slave memory** (`mem`) until Command #1 completes and clears the pipeline.
+
+3.  **Stall Release:**
+    * After 20 cycles, `PREADY` is driven High.
+    * The bridge completes the pending transaction (Command #1), moves to the next command in the FIFO, and the remaining data flows sequentially to update the Slave memory.
 
 
