@@ -327,7 +327,8 @@ In this phase, the APB Slave is responsive (`PREADY=1`), but the Testbench holds
 To verify that the **Write Response FIFO (`wr_rsp_fifo`)** accumulates responses correctly, asserts backpressure when full, and drains correctly once the Master becomes ready.
 
 **Waveform Analysis:**
-<img width="1894" height="588" alt="image" src="https://github.com/user-attachments/assets/5a510a7f-ca48-4d94-b7f1-db09766a0ab2" />
+<img width="1894" height="588" alt="image" src="https://github.com/user-attachments/assets/63dd21bd-b539-4ce7-a863-88cb9bb7e686" />
+
 <img width="929" height="584" alt="image" src="https://github.com/user-attachments/assets/3179f084-171e-481f-8c34-47efe4f6cfee" />
 
 
