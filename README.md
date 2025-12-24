@@ -142,39 +142,14 @@ A standard hardening block for crossing clock domains.
 * **Metastability Protection:** Consists of two flip-flops connected in series. It is used to synchronize the Gray-coded pointers from the source domain into the destination domain, reducing the probability of metastability to negligible levels.
 
 ---
-### FIFO Write Pointer & Full Logic
-**File:** [`fifo_wptr_full.sv`](SystemVerilog/fifo_wptr_full.sv)
-
-Handles the write domain logic of the FIFO.
-* **Pointer Management:** Increments the binary write pointer on valid write operations and converts it to Gray Code (`wptr_gray`).
-* **Full Flag Generation:** Compares the next Gray write pointer against the synchronized read pointer. It detects the "Full" condition (MSBs inverted, LSBs match) to prevent buffer overflow.
-
----
-
-### FIFO Read Pointer & Empty Logic
-**File:** [`fifo_rptr_empty.sv`](SystemVerilog/fifo_rptr_empty.sv)
-
-Handles the read domain logic of the FIFO.
-* **Pointer Management:** Increments the binary read pointer on valid read operations and converts it to Gray Code (`rptr_gray`).
-* **Empty Flag Generation:** Compares the next Gray read pointer against the synchronized write pointer. It detects the "Empty" condition (pointers identical) to prevent underflow.
-
----
-
-### 2-Stage Synchronizer
-**File:** [`sync_2ff.sv`](SystemVerilog/sync_2ff.sv)
-
-A standard hardening block for crossing clock domains.
-* **Metastability Protection:** Consists of two flip-flops connected in series. It is used to synchronize the Gray-coded pointers from the source domain into the destination domain, reducing the probability of metastability to negligible levels.
----
 
 ### Verification Testbench
 **File:** [`tb_axi_apb_bridge_top.sv`](SystemVerilog/tb_axi_apb_bridge_top.sv)
 
-A self-checking simulation environment designed to validate protocol compliance and corner cases.
-* **Test 0 (Read Stall):** Verifies data integrity and handshake correctness when the APB Slave stalls (`PREADY=0`) during a Read transaction.
-* **Test 1 (Backpressure & Saturation):** Floods the Write path to validate FIFO full conditions, ensuring correct propagation of backpressure to the AXI Master (`WREADY=0`) and deadlock prevention.
-* **Test 2 (Arbitration & Priority):** Injects simultaneous Read and Write requests to verify that the Arbiter correctly enforces Fixed-Priority (Write > Read) under contention.
-
+A comprehensive SystemVerilog testbench designed to validate the bridge under stress.
+* **Clock Generation:** Generates asynchronous clocks (`ACLK` and `PCLK`) with configurable frequency ratios.
+* **Traffic Generation:** Simulates an AXI Master initiating burst transactions and an APB Slave with random stall capabilities (`PREADY` randomization).
+* **Automated Checks:** Monitors transaction integrity, verifying that data written by the AXI Master matches the data received by the APB Slave (and vice versa) and checking for protocol violations.
 ---
 ## 1. System Data & Control Flow
 
