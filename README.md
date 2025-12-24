@@ -297,7 +297,9 @@ In this phase, we flood the system with **6 consecutive write commands** while t
 To verify that the **Write Command FIFO (`wr_cmd_fifo`)** and the APB Output Stage correctly buffer data up to their maximum capacity and exert backpressure on the AXI Master when full.
 
 **Waveform Analysis:**
-<img width="1283" height="505" alt="image" src="https://github.com/user-attachments/assets/01d4cf5b-17d7-42a3-8354-f5e5dcdfc358" />
+<img width="1171" height="487" alt="image" src="https://github.com/user-attachments/assets/9376f876-d99e-4d86-adf4-516df06804af" />
+<img width="1171" height="487" alt="image" src="https://github.com/user-attachments/assets/0305dcec-032e-4a09-9e5d-8c3f96dd7d82" />
+
 
 1.  **Capacity Analysis (FIFO + 1):**
     * The design utilizes a **Depth-4 Write Command FIFO (`wr_cmd_fifo`)**, yet the waveform shows it successfully accepts **5 Write Commands** before blocking.
