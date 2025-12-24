@@ -38,17 +38,13 @@ In modern System-on-Chip (SoC) designs, subsystems often operate at different fr
 The bridge supports full flow control (backpressure), allowing the APB slave to stall the high-speed AXI master when buffers are full, thus guaranteeing data integrity under heavy load conditions.
 
 ---
-### Key Features
-* **Protocol Translation:** Seamless conversion between AXI4-Lite (Byte-addressable, Handshake-based) and APB (Word-aligned, Strobe-based) protocols.
-* **Asynchronous CDC:** Utilizes dual-clock FIFOs with Gray-coded pointers and 2-stage synchronizers (2FF) to eliminate metastability risks.
-* **Robust Flow Control:** Propagates backpressure from the APB Slave/FIFOs all the way to the AXI Master to prevent buffer overflows.
-* **Arbitration Logic:** Implements a fixed-priority arbiter (Write > Read) to manage simultaneous read and write requests efficiently.
-* **Deadlock Prevention:** Designed with separate command and response paths to ensure non-blocking operation during complex transaction sequences.
+
 ## Key Features
 * **Protocol Translation:** Converts AXI4-Lite transactions to APB transfers.
 * **Robust CDC:** Uses dual-clock asynchronous FIFOs with Gray-code pointer exchange.
 * **Metastability Protection:** Implements 2FF synchronizers on all cross-domain control signals.
 * **Data Integrity:** Guarantees data consistency between fast (AXI) and slow (APB) clock domains.
+* * **Arbitration Logic:** Implements a fixed-priority arbiter (Write > Read) to manage simultaneous read and write requests efficiently.
 * **Full Verification:** Includes a behavioral APB slave model and automated transaction checkers.
 
 ---
