@@ -92,6 +92,7 @@ The bridge operates by decoupling transaction initiation (AXI) from transaction 
 ├── Docs/                           # Documentation assets (Images & Waveforms)
 ├── LICENSE                         # MIT License
 └── README.md                       # Project Documentation
+```
 ---
 ## 1. System Data & Control Flow
 
