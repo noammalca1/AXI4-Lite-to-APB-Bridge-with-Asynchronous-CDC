@@ -346,3 +346,34 @@ To verify that the **Write Response FIFO (`wr_rsp_fifo`)** accumulates responses
         1.    **Unblocking Command #6:** As soon as space becomes available in the FIFO, the APB FSM unblocks. It transitions from `ST_RSP_WAIT` back to `IDLE/SETUP`, finally accepting and executing **Write Command #6** (Address `0x114`).
         2.    **Response Flow:** The FIFO begins to drain. The signal `b_hs_count` (Handshake Counter) increments clearly(until 6), confirming that all buffered responses are successfully delivered to the AXI Master.
 ---
+### Test 2: Arbiter Performance (Write Priority)
+
+This test evaluates the system's arbitration logic when facing simultaneous resource contention. The design is configured with a **Fixed Priority Arbitration** scheme where **Write Transactions** take precedence over Read Transactions.
+
+**Objective:**
+To verify that when both Write and Read Command FIFOs contain pending requests, the Arbiter correctly grants the bus to the Write operations first, delaying Read operations until the Write path is empty.
+
+**Waveform Analysis:**
+<img width="1432" height="639" alt="image" src="https://github.com/user-attachments/assets/ef693fde-86b5-4267-8a22-cc373fdaac3b" />
+
+
+1.  **Simultaneous Injection:**
+    * The testbench initiates **4 Write Commands** and **4 Read Commands** concurrently.
+    * **Observation:** The waveform shows the internal memory (`mem`) of both the `wr_cmd_fifo` and `rd_cmd_fifo` being populated with command data.
+
+2.  **Contention State:**
+    * A critical state is observed where both **`wr_cmd_fifo_empty`** and **`rd_cmd_fifo_empty`** are **Low (0)**.
+    * This confirms that both FIFOs are non-empty and are competing for the APB Master FSM.
+
+3.  **Priority Enforcement (Write > Read):**
+    * **First Transaction:** The first Write command immediately propagates to the APB stage (causing a momentary toggle in `wr_cmd_fifo_empty`).
+    * **Sequential Execution:** Despite the presence of pending Read commands, the Arbiter grants access **exclusively to Write transactions**. The signals `PADDR` and `PWDATA` update sequentially for the 4 writes, while the Read FIFO remains stalled.
+
+4.  **Transition to Reads:**
+    * Only once the Write Command FIFO is completely drained (`wr_cmd_fifo_empty` becomes High), the Arbiter grants the bus to the Read channel.
+    * The 4 Read commands are then processed sequentially on the APB bus.
+
+5.  **Completion Verification:**
+    * The handshake counters at the bottom of the waveform verify the successful return of responses to the AXI Master.
+    * **`b_hs_count`** (Write Responses) counts up to 4 first.
+    * **`r_hs_count`** (Read Responses) counts up to 4 only after the writes are complete, confirming the strict priority ordering.
