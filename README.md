@@ -94,6 +94,64 @@ The bridge operates by decoupling transaction initiation (AXI) from transaction 
 └── README.md                       # Project Documentation
 ```
 ---
+## Modules Description
+
+### AXI-APB Bridge Top-Level
+**File:** [`axi_apb_bridge_top.sv`](SystemVerilog/axi_apb_bridge_top.sv)
+
+The integration layer that creates the complete bridge system. It instantiates the AXI Slave, the APB Master, and the four asynchronous FIFOs.
+* **Arbiter Logic:** Implements the **Fixed-Priority Arbitration** logic (Write > Read) to serialize requests for the single APB Master.
+* **Flow Control Routing:** Manages the critical `rsp_ready` signals, routing "FIFO Full" status from the response buffers back to the state machines to prevent data loss or deadlock.
+
+---
+
+### AXI4-Lite Slave FSM
+**File:** [`axi_lite_slave.sv`](SystemVerilog/axi_lite_slave.sv)
+
+The front-end interface compliant with the AMBA AXI4-Lite protocol. It operates entirely in the fast `ACLK` domain.
+* **Handshake Management:** Manages the 5 AXI channels (AW, W, AR, B, R), handling `VALID`/`READY` signals.
+* **Command Parsing:** Splits incoming requests into separate "Write" and "Read" streams to be pushed into their respective CDC FIFOs.
+* **Backpressure Source:** Directly drives the `AWREADY`, `WREADY`, and `ARREADY` signals low when the internal FIFOs report a "Full" status.
+
+---
+
+### APB Master FSM
+**File:** [`apb_master_fsm.sv`](SystemVerilog/apb_master_fsm.sv)
+
+The back-end interface compliant with the AMBA APB protocol (v3/v4). It operates entirely in the slow `PCLK` domain.
+* **State Machine:** Implements a robust FSM (States: `IDLE`, `SETUP`, `ACCESS`, `ST_RSP_WAIT`) to drive the address (`PADDR`) and data (`PWDATA`) phases.
+* **Stall Handling:** Correctly handles `PREADY` from external slaves, holding the bus in the `ACCESS` phase until the slave is ready.
+* **Response Handling:** Captures `PRDATA` and `PSLVERR`, creates a response packet, and pushes it into the Response FIFO to be sent back to the AXI domain.
+
+---
+
+### Asynchronous FIFO (CDC)
+**Files:** [`async_fifo.sv`](SystemVerilog/async_fifo.sv), [`fifo_wptr_full.sv`](SystemVerilog/fifo_wptr_full.sv), [`fifo_rptr_empty.sv`](SystemVerilog/fifo_rptr_empty.sv)
+
+A generic, dual-clock First-In-First-Out buffer used for safe Clock Domain Crossing (CDC).
+* **Gray Coding:** Converts internal read/write pointers to Gray Code before passing them across clock domains to prevent multi-bit synchronization errors.
+* **Storage:** Uses a parameterized memory array (`mem`) with support for FWFT (First-Word-Fall-Through) behavior for low-latency reading.
+* **Empty/Full Logic:** Generates reliable status flags to prevent underflow (reading empty) or overflow (writing full).
+
+---
+
+### 2-Stage Synchronizer
+**File:** [`sync_2ff.sv`](SystemVerilog/sync_2ff.sv)
+
+A standard hardening block for crossing clock domains.
+* **Metastability Protection:** Consists of two flip-flops connected in series. It is used to synchronize the Gray-coded pointers from the source domain into the destination domain, reducing the probability of metastability to negligible levels.
+
+---
+
+### Verification Testbench
+**File:** [`tb_axi_apb_bridge_top.sv`](SystemVerilog/tb_axi_apb_bridge_top.sv)
+
+A self-checking simulation environment designed to validate protocol compliance and corner cases.
+* **Test 0 (Read Stall):** Verifies data integrity and handshake correctness when the APB Slave stalls (`PREADY=0`) during a Read transaction.
+* **Test 1 (Backpressure & Saturation):** Floods the Write path to validate FIFO full conditions, ensuring correct propagation of backpressure to the AXI Master (`WREADY=0`) and deadlock prevention.
+* **Test 2 (Arbitration & Priority):** Injects simultaneous Read and Write requests to verify that the Arbiter correctly enforces Fixed-Priority (Write > Read) under contention.
+
+---
 ## 1. System Data & Control Flow
 
 This diagram illustrates how data flows from the AXI Master, through the CDC FIFOs, to the APB FSM, and back.
