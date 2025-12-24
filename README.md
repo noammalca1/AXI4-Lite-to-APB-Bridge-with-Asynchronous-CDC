@@ -48,6 +48,34 @@ The bridge supports full flow control (backpressure), allowing the APB slave to 
 * **Full Verification:** Includes a behavioral APB slave model and automated transaction checkers.
 
 ---
+## System Overview
+
+The design is structured as a dual-clock system divided into two distinct domains: the **AXI4-Lite Domain (ACLK)** and the **APB Domain (PCLK)**.
+
+The bridge operates by decoupling transaction initiation (AXI) from transaction execution (APB) using a **channel-based FIFO architecture**. This approach allows the AXI Master to post multiple commands into the bridge without waiting for the slow APB peripheral to respond, maximizing system throughput.
+
+### Architectural Highlights
+
+1.  **AXI Front-End (ACLK Domain):**
+    * Acts as a compliant AXI4-Lite Slave.
+    * Responsible for handshaking with the Master (`READY`/`VALID`) and parsing incoming transactions.
+    * Splits requests into two parallel streams: **Write Commands** (Address + Data) and **Read Commands** (Address only).
+
+2.  **Clock Domain Crossing (CDC) Layer:**
+    * Four independent **Asynchronous FIFOs** isolate the fast AXI clock from the slow APB clock.
+    * **Command Path:** Transfers requests from AXI to APB (`wr_cmd_fifo`, `rd_cmd_fifo`).
+    * **Response Path:** Transfers status and data back from APB to AXI (`wr_rsp_fifo`, `rd_rsp_fifo`).
+    * This separation prevents Head-of-Line blocking between Read and Write channels inside the bridge.
+
+3.  **Arbiter & APB Back-End (PCLK Domain):**
+    * **Arbiter:** Monitors the command FIFOs and serializes requests for the APB Master. It implements a **Fixed-Priority Scheme** where Write transactions are granted precedence over Read transactions to ensure data is committed to memory as fast as possible.
+    * **APB Master FSM:** Drives the standard APB protocol (`PSEL`, `PENABLE`, `PADDR`, `PWDATA`) to the external slaves and captures responses.
+
+4.  **Flow Control (Backpressure):**
+    * The system implements hardware-based flow control.
+    * If a CDC FIFO becomes full (due to APB stalls or high traffic), the "Full" status propagates instantly to the AXI Slave logic.
+    * The AXI Slave then de-asserts `AWREADY`, `WREADY`, or `ARREADY`, effectively stalling the AXI Master until buffer space becomes available.
+---
 
 ## 1. System Data & Control Flow
 
