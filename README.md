@@ -344,5 +344,5 @@ To verify that the **Write Response FIFO (`wr_rsp_fifo`)** accumulates responses
     * After 100 cycles (ACLK), the Testbench asserts `BREADY=1`.
     * **Simultaneous Action:**
         1.    **Unblocking Command #6:** As soon as space becomes available in the FIFO, the APB FSM unblocks. It transitions from `ST_RSP_WAIT` back to `IDLE/SETUP`, finally accepting and executing **Write Command #6** (Address `0x114`).
-        2.    **Response Flow:** The FIFO begins to drain. The signal `b_hs_count` (Handshake Counter) increments clearly, confirming that all buffered responses are successfully delivered to the AXI Master.
+        2.    **Response Flow:** The FIFO begins to drain. The signal `b_hs_count` (Handshake Counter) increments clearly(until 6), confirming that all buffered responses are successfully delivered to the AXI Master.
 ---
