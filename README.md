@@ -298,7 +298,8 @@ To verify that the **Write Command FIFO (`wr_cmd_fifo`)** and the APB Output Sta
 
 **Waveform Analysis:**
 <img width="1171" height="487" alt="image" src="https://github.com/user-attachments/assets/9376f876-d99e-4d86-adf4-516df06804af" />
-<img width="1171" height="487" alt="image" src="https://github.com/user-attachments/assets/0305dcec-032e-4a09-9e5d-8c3f96dd7d82" />
+<img width="1449" height="487" alt="image" src="https://github.com/user-attachments/assets/f46988eb-daf9-49cc-a5a9-a00844f6b98c" />
+
 
 
 1.  **Capacity Analysis (FIFO + 1):**
