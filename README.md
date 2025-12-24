@@ -26,7 +26,7 @@ The design includes a dedicated AXI Slave FSM, an APB Master FSM, and a custom *
     - [Test 0 Analysis (Read Request with APB Stall)](#test-0-read-request-with-apb-stall--recovery)
     - [Test 1 Analysis (Write Burst & Backpressure)](#test-1-write-burst-with-backpressure)
     - [Test 2 Analysis (Arbiter Performance & Priority)](#test-2-arbiter-performance-write-priority)
-- [License](#license)
+
 ---
 
 # Introduction
