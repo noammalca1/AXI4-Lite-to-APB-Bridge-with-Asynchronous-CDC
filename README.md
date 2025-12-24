@@ -319,3 +319,28 @@ To verify that the **Write Command FIFO (`wr_cmd_fifo`)** and the APB Output Sta
     * **Deadlock:** The FSM attempts to push the response for Command #5, but the **Write Response FIFO is full** (holding responses #1-#4).
     * **State 3 (ST_RSP_WAIT):** The FSM transitions to the `ST_RSP_WAIT` state and stalls, holding Command #5's response internally.
     * **Impact on Command #6:** Although Command #6 is now in the Command FIFO, **it cannot enter the FSM** because the FSM is stalled on Command #5. This confirms that backpressure propagates correctly from the Response Channel back to the execution logic.
+  
+#### Phase 2: Response Path Saturation (BREADY=0)
+In this phase, the APB Slave is responsive (`PREADY=1`), but the Testbench holds **`BREADY=0`**, simulating an AXI Master that is temporarily unable to accept responses.
+
+**Objective:**
+To verify that the **Write Response FIFO (`wr_rsp_fifo`)** accumulates responses correctly, asserts backpressure when full, and drains correctly once the Master becomes ready.
+
+**Waveform Analysis:**
+<img width="1894" height="588" alt="image" src="https://github.com/user-attachments/assets/5a510a7f-ca48-4d94-b7f1-db09766a0ab2" />
+<img width="929" height="584" alt="image" src="https://github.com/user-attachments/assets/3179f084-171e-481f-8c34-47efe4f6cfee" />
+
+
+1.  **Response Accumulation (FIFO Filling):**
+    * As the first 4 write commands complete, their responses flow into the `wr_rsp_fifo`.
+    * **Observation:** The waveform shows the internal FIFO memory (`mem`) filling up with the value `0` (representing `AXI_RESP_OKAY`). All 4 slots are occupied, causing the `full` signal to assert.
+
+2.  **Backpressure & Stall:**
+    * When the 5th command completes, the FSM cannot push the response into the full FIFO.
+    * **State Freeze:** The FSM transitions to **State 3 (`ST_RSP_WAIT`)** and holds the bus. Consequently, **Command #6 is blocked** from entering the APB stage.
+
+3.  **Drain & Recovery (BREADY=1):**
+    * After 100 cycles, the Testbench asserts `BREADY=1`.
+    * **Simultaneous Action:**
+        1.  **Response Flow:** The FIFO begins to drain. The signal `b_hs_count` (Handshake Counter) increments clearly (values 3, 4, 5, 6), confirming that all buffered responses are successfully delivered to the AXI Master.
+        2.  **Unblocking Command #6:** As soon as space becomes available in the FIFO, the APB FSM unblocks. It transitions from `ST_RSP_WAIT` back to `IDLE/SETUP`, finally accepting and executing **Write Command #6** (Address `0x114`).
