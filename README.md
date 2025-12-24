@@ -10,7 +10,26 @@ It is designed to handle cross-domain data integrity using **Asynchronous FIFOs*
 The design includes a dedicated AXI Slave FSM, an APB Master FSM, and a custom **Clock Domain Crossing (CDC)** logic block utilizing Gray-coded pointers and 2-stage synchronizers (2FF). It is accompanied by a self-checking testbench.
 
 ---
+## Table of Contents
 
+- [Introduction](#introduction)
+- [System Overview](#system-overview)
+- [Repository Structure](#repository-structure)
+- [Modules Description](#modules-description)
+    - [GPIO Top-Level](#gpio-top-level)
+    - [APB Register File](#apb-register-file)
+    - [Pin Interface + 2-FF Synchronizer](#pin-interface--2-ff-synchronizer)
+    - [Debounce Engine](#debounce-engine)
+    - [Interrupt Controller](#interrupt-controller)
+    - [Verification Testbench](#verification-testbench-module)
+- [Data & Control Flow](#data--control-flow)
+- [Verification Testbench (Simulation and Waveforms)](#verification-testbench-simulation-and-waveforms)
+    - [Test 1 Analysis (Direction & Output)](#test-1-analysis-direction--output)
+    - [Test 2 Analysis (Debounce Logic)](#test-2-analysis-debounce-logic)
+    - [Test 3 Analysis (Interrupt Logic - Rising Edge)](#test-3-analysis-interrupt-logic---rising-edge)
+    - [Test 4 Analysis (Interrupt Logic - Level High)](#test-4-analysis-interrupt-logic---level-high)
+- [License](#license)
+---
 ## Key Features
 * **Protocol Translation:** Converts AXI4-Lite transactions to APB transfers.
 * **Robust CDC:** Uses dual-clock asynchronous FIFOs with Gray-code pointer exchange.
