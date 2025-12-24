@@ -16,20 +16,32 @@ The design includes a dedicated AXI Slave FSM, an APB Master FSM, and a custom *
 - [System Overview](#system-overview)
 - [Repository Structure](#repository-structure)
 - [Modules Description](#modules-description)
-    - [GPIO Top-Level](#gpio-top-level)
-    - [APB Register File](#apb-register-file)
-    - [Pin Interface + 2-FF Synchronizer](#pin-interface--2-ff-synchronizer)
-    - [Debounce Engine](#debounce-engine)
-    - [Interrupt Controller](#interrupt-controller)
+    - [AXI-APB Bridge Top-Level](#axi-apb-bridge-top-level)
+    - [AXI4-Lite Slave FSM](#axi4-lite-slave-fsm)
+    - [APB Master FSM](#apb-master-fsm)
+    - [Asynchronous FIFO (CDC)](#asynchronous-fifo-cdc)
     - [Verification Testbench](#verification-testbench-module)
 - [Data & Control Flow](#data--control-flow)
 - [Verification Testbench (Simulation and Waveforms)](#verification-testbench-simulation-and-waveforms)
-    - [Test 1 Analysis (Direction & Output)](#test-1-analysis-direction--output)
-    - [Test 2 Analysis (Debounce Logic)](#test-2-analysis-debounce-logic)
-    - [Test 3 Analysis (Interrupt Logic - Rising Edge)](#test-3-analysis-interrupt-logic---rising-edge)
-    - [Test 4 Analysis (Interrupt Logic - Level High)](#test-4-analysis-interrupt-logic---level-high)
+    - [Test 0 Analysis (Read Request with APB Stall)](#test-0-read-request-with-apb-stall--recovery)
+    - [Test 1 Analysis (Write Burst & Backpressure)](#test-1-write-burst-with-backpressure)
+    - [Test 2 Analysis (Arbiter Performance & Priority)](#test-2-arbiter-performance-write-priority)
 - [License](#license)
 ---
+# Introduction
+
+This project implements a robust, synthesizable **AXI4-Lite to APB Bridge** designed to interface high-speed AXI masters with lower-speed APB peripherals across asynchronous clock domains.
+
+In modern System-on-Chip (SoC) designs, subsystems often operate at different frequencies to optimize power and performance. Bridging these domains requires careful handling of **Clock Domain Crossing (CDC)** to prevent metastability and data loss. This design addresses these challenges by employing **Asynchronous FIFOs** for command and response buffering, ensuring safe and reliable data transfer between the AXI (ACLK) and APB (PCLK) domains.
+
+The bridge supports full flow control (backpressure), allowing the APB slave to stall the high-speed AXI master when buffers are full, thus guaranteeing data integrity under heavy load conditions.
+---
+### Key Features
+* **Protocol Translation:** Seamless conversion between AXI4-Lite (Byte-addressable, Handshake-based) and APB (Word-aligned, Strobe-based) protocols.
+* **Asynchronous CDC:** Utilizes dual-clock FIFOs with Gray-coded pointers and 2-stage synchronizers (2FF) to eliminate metastability risks.
+* **Robust Flow Control:** Propagates backpressure from the APB Slave/FIFOs all the way to the AXI Master to prevent buffer overflows.
+* **Arbitration Logic:** Implements a fixed-priority arbiter (Write > Read) to manage simultaneous read and write requests efficiently.
+* **Deadlock Prevention:** Designed with separate command and response paths to ensure non-blocking operation during complex transaction sequences.
 ## Key Features
 * **Protocol Translation:** Converts AXI4-Lite transactions to APB transfers.
 * **Robust CDC:** Uses dual-clock asynchronous FIFOs with Gray-code pointer exchange.
