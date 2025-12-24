@@ -313,7 +313,7 @@ To verify that the **Write Command FIFO (`wr_cmd_fifo`)** and the APB Output Sta
     * After 20 cycles, `PREADY` is driven High.
     * The bridge completes the pending transaction (Command #1), pops the next command from the `wr_cmd_fifo`, and the remaining data flows sequentially to update the Slave memory.
 
-4.  **Transition to Response Stall (Command #6):**
-    * Once Command #6 finally enters the APB FSM and completes its operation, the FSM transitions to **Stage 3 (`ST_RSP_WAIT`)** and stalls there.
-    * **Reason:** At this point, the **Write Response FIFO (`wr_rsp_fifo`)** is completely full (filled by responses from Cmds #1-#5), and **`BREADY` is held Low (0)**.
-    * **Result:** The FSM cannot push the response for Command #6 into the FIFO. Therefore, it holds the result internally and halts all further processing until the AXI Master exerts `BREADY` to drain the responses.
+4.  **Transition to Response Stall (Command #6 Blocked):**
+    * After **Command #5** completes its execution on the APB bus, the FSM transitions to **Stage 3 (`ST_RSP_WAIT`)** and stalls.
+    * **Reason:** The **Write Response FIFO (`wr_rsp_fifo`)** is completely full, holding the responses for **Cmds #1–#4**. Since **`BREADY` is Low**, these responses cannot drain.
+    * **Result:** The FSM is forced to hold the response for **Command #5** internally. Consequently, it cannot accept or process **Command #6**, effectively propagating backpressure to the Command FIFO.
