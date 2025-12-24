@@ -274,8 +274,6 @@ To ensure that the bridge **does not output invalid ("garbage") data** while wai
 <img width="1263" height="350" alt="image" src="https://github.com/user-attachments/assets/d590eaa9-27c9-412b-a1f1-626b53f6af15" />
 
 
-
-
 1.  **Phase 1: The Stall (PREADY = 0)**
     * **Address Capture:** The AXI Master drives the address, and the bridge captures it (`araddr_reg` updates).
     * **System Freeze:** Since `PREADY` is Low, the `rd_rsp_fifo_empty` signal remains **High**.
@@ -310,9 +308,6 @@ To verify that the **Write Command FIFO (`wr_cmd_fifo`)** and the APB Output Sta
     * The APB FSM captures Command #1 and transitions to the **ACCESS** state.
     * Since `PREADY` is Low, the FSM holds Command #1 valid on the bus.
     * **Data Integrity:** Command #5 is safely stored in the FIFO, waiting for the pipeline to clear.
-
-#### Phase 2: Response Path Saturation (BREADY=0)
-In this phase, `PREADY` is released (High), allowing transactions to complete, but `BREADY` is held Low, preventing responses from draining to the Master.
 
 3.  **Stall Release & FIFO Filling:**
     * Once `PREADY` goes High, the FSM processes Commands #1 through #4 sequentially.
