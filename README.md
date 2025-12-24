@@ -76,7 +76,23 @@ The bridge operates by decoupling transaction initiation (AXI) from transaction 
     * If a CDC FIFO becomes full (due to APB stalls or high traffic), the "Full" status propagates instantly to the AXI Slave logic.
     * The AXI Slave then de-asserts `AWREADY`, `WREADY`, or `ARREADY`, effectively stalling the AXI Master until buffer space becomes available.
 ---
+## Repository Structure
 
+```text
+.
+├── SystemVerilog/                  # RTL Source files and Testbench
+│   ├── axi_apb_bridge_top.sv       # Top-Level Bridge Module
+│   ├── axi_lite_slave.sv           # AXI4-Lite Slave Interface & Logic
+│   ├── apb_master_fsm.sv           # APB Master Finite State Machine
+│   ├── async_fifo.sv               # Top-level Wrapper for Async FIFO
+│   ├── fifo_wptr_full.sv           # FIFO Write Pointer & Full Flag Logic
+│   ├── fifo_rptr_empty.sv          # FIFO Read Pointer & Empty Flag Logic
+│   ├── sync_2ff.sv                 # 2-Stage Flip-Flop Synchronizer (CDC)
+│   └── tb_axi_apb_bridge_top.sv    # Verification Testbench
+├── Docs/                           # Documentation assets (Images & Waveforms)
+├── LICENSE                         # MIT License
+└── README.md                       # Project Documentation
+---
 ## 1. System Data & Control Flow
 
 This diagram illustrates how data flows from the AXI Master, through the CDC FIFOs, to the APB FSM, and back.
