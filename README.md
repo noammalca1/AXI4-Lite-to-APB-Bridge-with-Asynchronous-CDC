@@ -286,37 +286,41 @@ To ensure that the bridge **does not output invalid ("garbage") data** while wai
     * **Transaction Completion:** Immediately after the FIFO becomes non-empty, the bridge asserts `RVALID`. Since `RREADY` is already High, a valid handshake occurs, and the read transaction is successfully closed.
 ---
 
+
 ### Test 1: Write Burst with Backpressure
 
 This test evaluates the bridge's flow control mechanisms under stress. It is divided into two phases: **Command Path Saturation** (Phase 1) and **Response Path Saturation** (Phase 2).
 
-#### Phase 1: Command Path Saturation (APB Stall)
+#### Phase 1: Command Path Saturation (APB Stall, PREADY=0)
 In this phase, we flood the system with **6 consecutive write commands** while the APB Slave is stalled (`PREADY=0`).
 
 **Objective:**
-To verify that the **Write Command FIFO (`wr_cmd_fifo`)** and the APB Output Stage correctly buffer data up to their maximum capacity and exert backpressure on the AXI Master when full.
+To verify that the **Write Command FIFO (`wr_cmd_fifo`)** and the APB Output Stage correctly buffer data up to their maximum capacity and exert backpressure on the AXI Master.
 
 **Waveform Analysis:**
 <img width="1171" height="487" alt="image" src="https://github.com/user-attachments/assets/9376f876-d99e-4d86-adf4-516df06804af" />
 <img width="1449" height="487" alt="image" src="https://github.com/user-attachments/assets/f46988eb-daf9-49cc-a5a9-a00844f6b98c" />
 
-
-
 1.  **Capacity Analysis (FIFO + 1):**
-    * The design utilizes a **Depth-4 Write Command FIFO (`wr_cmd_fifo`)**, yet the waveform shows it successfully accepts **5 Write Commands** before blocking.
-    * **Reasoning:** Command #1 immediately exits the FIFO and propagates to the APB Driver (the "Holding Stage/Output Register"), effectively freeing up a slot. Consequently, the `wr_cmd_fifo` buffers Commands #2, #3, #4, and #5.
-    * **Backpressure:** When Command #6 attempts to enter, the `wr_cmd_fifo` is full and the output stage is occupied. The bridge correctly de-asserts `AWREADY`/`WREADY`, blocking the 6th command until space becomes available.
+    * The design utilizes a **Depth-4 Write Command FIFO**, yet the waveform shows it successfully accepts **5 Write Commands** before blocking.
+    * **Reasoning:** Command #1 immediately propagates to the APB FSM (Output Stage), freeing a slot. Consequently, the `wr_cmd_fifo` buffers Commands #2, #3, #4, and #5.
+    * **Backpressure:** When Command #6 attempts to enter, the system is fully saturated. The bridge de-asserts `AWREADY`/`WREADY`, blocking Command #6 at the AXI interface.
 
 2.  **FSM & Signal Behavior:**
-    * **State Transition:** Following the handshake, the APB FSM transitions from **IDLE** to **SETUP**, capturing the address and data of Command #1.
-    * **Stall in ACCESS Phase:** In the next cycle, the FSM moves to **ACCESS** and asserts `PENABLE`. However, since `PREADY` is Low, the FSM holds this state, keeping Command #1 valid on the bus.
-    * **Data Integrity:** The waveform confirms that Command #5's data is safely stored in the `wr_cmd_fifo` but is **not written to the Slave memory** (`mem`) until Command #1 completes and clears the pipeline.
+    * The APB FSM captures Command #1 and transitions to the **ACCESS** state.
+    * Since `PREADY` is Low, the FSM holds Command #1 valid on the bus.
+    * **Data Integrity:** Command #5 is safely stored in the FIFO, waiting for the pipeline to clear.
 
-3.  **Stall Release:**
-    * After 20 cycles, `PREADY` is driven High.
-    * The bridge completes the pending transaction (Command #1), pops the next command from the `wr_cmd_fifo`, and the remaining data flows sequentially to update the Slave memory.
+#### Phase 2: Response Path Saturation (BREADY=0)
+In this phase, `PREADY` is released (High), allowing transactions to complete, but `BREADY` is held Low, preventing responses from draining to the Master.
 
-4.  **Transition to Response Stall (Command #6 Blocked):**
-    * After **Command #5** completes its execution on the APB bus, the FSM transitions to **Stage 3 (`ST_RSP_WAIT`)** and stalls.
-    * **Reason:** The **Write Response FIFO (`wr_rsp_fifo`)** is completely full, holding the responses for **Cmds #1–#4**. Since **`BREADY` is Low**, these responses cannot drain.
-    * **Result:** The FSM is forced to hold the response for **Command #5** internally. Consequently, it cannot accept or process **Command #6**, effectively propagating backpressure to the Command FIFO.
+3.  **Stall Release & FIFO Filling:**
+    * Once `PREADY` goes High, the FSM processes Commands #1 through #4 sequentially.
+    * Their responses fill the **Write Response FIFO (`wr_rsp_fifo`)** completely (Depth 4).
+    * As commands move from the Command FIFO to the FSM, space clears up, allowing **Command #6** to finally enter the Command FIFO.
+
+4.  **Transition to Response Stall (FSM Halted on Command #5):**
+    * **Scenario:** The FSM processes **Command #5** and completes the APB transaction.
+    * **Deadlock:** The FSM attempts to push the response for Command #5, but the **Write Response FIFO is full** (holding responses #1-#4).
+    * **State 3 (ST_RSP_WAIT):** The FSM transitions to the `ST_RSP_WAIT` state and stalls, holding Command #5's response internally.
+    * **Impact on Command #6:** Although Command #6 is now in the Command FIFO, **it cannot enter the FSM** because the FSM is stalled on Command #5. This confirms that backpressure propagates correctly from the Response Channel back to the execution logic.
