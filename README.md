@@ -142,6 +142,30 @@ A standard hardening block for crossing clock domains.
 * **Metastability Protection:** Consists of two flip-flops connected in series. It is used to synchronize the Gray-coded pointers from the source domain into the destination domain, reducing the probability of metastability to negligible levels.
 
 ---
+### FIFO Write Pointer & Full Logic
+**File:** [`fifo_wptr_full.sv`](SystemVerilog/fifo_wptr_full.sv)
+
+Handles the write domain logic of the FIFO.
+* **Pointer Management:** Increments the binary write pointer on valid write operations and converts it to Gray Code (`wptr_gray`).
+* **Full Flag Generation:** Compares the next Gray write pointer against the synchronized read pointer. It detects the "Full" condition (MSBs inverted, LSBs match) to prevent buffer overflow.
+
+---
+
+### FIFO Read Pointer & Empty Logic
+**File:** [`fifo_rptr_empty.sv`](SystemVerilog/fifo_rptr_empty.sv)
+
+Handles the read domain logic of the FIFO.
+* **Pointer Management:** Increments the binary read pointer on valid read operations and converts it to Gray Code (`rptr_gray`).
+* **Empty Flag Generation:** Compares the next Gray read pointer against the synchronized write pointer. It detects the "Empty" condition (pointers identical) to prevent underflow.
+
+---
+
+### 2-Stage Synchronizer
+**File:** [`sync_2ff.sv`](SystemVerilog/sync_2ff.sv)
+
+A standard hardening block for crossing clock domains.
+* **Metastability Protection:** Consists of two flip-flops connected in series. It is used to synchronize the Gray-coded pointers from the source domain into the destination domain, reducing the probability of metastability to negligible levels.
+---
 
 ### Verification Testbench
 **File:** [`tb_axi_apb_bridge_top.sv`](SystemVerilog/tb_axi_apb_bridge_top.sv)
