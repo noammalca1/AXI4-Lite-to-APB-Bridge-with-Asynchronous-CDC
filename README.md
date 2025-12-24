@@ -28,6 +28,7 @@ The design includes a dedicated AXI Slave FSM, an APB Master FSM, and a custom *
     - [Test 2 Analysis (Arbiter Performance & Priority)](#test-2-arbiter-performance-write-priority)
 - [License](#license)
 ---
+
 # Introduction
 
 This project implements a robust, synthesizable **AXI4-Lite to APB Bridge** designed to interface high-speed AXI masters with lower-speed APB peripherals across asynchronous clock domains.
@@ -35,6 +36,7 @@ This project implements a robust, synthesizable **AXI4-Lite to APB Bridge** desi
 In modern System-on-Chip (SoC) designs, subsystems often operate at different frequencies to optimize power and performance. Bridging these domains requires careful handling of **Clock Domain Crossing (CDC)** to prevent metastability and data loss. This design addresses these challenges by employing **Asynchronous FIFOs** for command and response buffering, ensuring safe and reliable data transfer between the AXI (ACLK) and APB (PCLK) domains.
 
 The bridge supports full flow control (backpressure), allowing the APB slave to stall the high-speed AXI master when buffers are full, thus guaranteeing data integrity under heavy load conditions.
+
 ---
 ### Key Features
 * **Protocol Translation:** Seamless conversion between AXI4-Lite (Byte-addressable, Handshake-based) and APB (Word-aligned, Strobe-based) protocols.
