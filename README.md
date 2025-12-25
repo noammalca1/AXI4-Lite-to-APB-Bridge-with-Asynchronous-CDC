@@ -276,9 +276,9 @@ graph LR
         AXI_M["AXI Master<br/>(Read Initiator)"]
     end
     
-    subgraph Bridge_Scope [The Bridge]
+    subgraph Bridge_Scope [AXI-to-APB Bridge]
         direction TB
-        DUT["AXI-to-APB Bridge<br/>(Translation Logic)"]
+        DUT["Bridge Control<br/>(Translation Logic)"]
     end
 
     subgraph APB_Side [APB Domain]
