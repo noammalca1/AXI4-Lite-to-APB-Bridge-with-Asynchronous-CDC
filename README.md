@@ -44,7 +44,7 @@ The bridge supports full flow control (backpressure), allowing the APB slave to 
 * **Robust CDC:** Uses dual-clock asynchronous FIFOs with Gray-code pointer exchange.
 * **Metastability Protection:** Implements 2FF synchronizers on all cross-domain control signals.
 * **Data Integrity:** Guarantees data consistency between fast (AXI) and slow (APB) clock domains.
-* * **Arbitration Logic:** Implements a fixed-priority arbiter (Write > Read) to manage simultaneous read and write requests efficiently.
+* **Arbitration Logic:** Implements a fixed-priority arbiter (Write > Read) to manage simultaneous read and write requests efficiently.
 * **Full Verification:** Includes a behavioral APB slave model and automated transaction checkers.
 
 ---
