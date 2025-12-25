@@ -278,7 +278,7 @@ graph LR
     
     subgraph Bridge_Scope [AXI-to-APB Bridge]
         direction TB
-        DUT["Bridge Control<br/>(Translation Logic)"]
+        DUT["Bridge Control<br/>"]
     end
 
     subgraph APB_Side [APB Domain]
