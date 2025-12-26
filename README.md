@@ -12,7 +12,7 @@ To address these challenges, the design employs **Asynchronous FIFOs** utilizing
 ---
 ## Table of Contents
 
-- [Introduction](#introduction)
+- [Key Features](#key-features)
 - [System Overview](#system-overview)
 - [Repository Structure](#repository-structure)
 - [Modules Description](#modules-description)
@@ -26,17 +26,6 @@ To address these challenges, the design employs **Asynchronous FIFOs** utilizing
     - [Test 0 Analysis (Read Request with APB Stall)](#test-0-read-request-with-apb-stall--recovery)
     - [Test 1 Analysis (Write Burst & Backpressure)](#test-1-write-burst-with-backpressure)
     - [Test 2 Analysis (Arbiter Performance & Priority)](#test-2-arbiter-performance-write-priority)
-
----
-
-# Introduction
-
-This project implements a robust, synthesizable **AXI4-Lite to APB Bridge** designed to interface high-speed AXI masters with lower-speed APB peripherals across asynchronous clock domains.
-
-In modern System-on-Chip (SoC) designs, subsystems often operate at different frequencies to optimize power and performance. Bridging these domains requires careful handling of **Clock Domain Crossing (CDC)** to prevent metastability and data loss. This design addresses these challenges by employing **Asynchronous FIFOs** for command and response buffering, ensuring safe and reliable data transfer between the AXI (ACLK) and APB (PCLK) domains.
-
-The bridge supports full flow control (backpressure), allowing the APB slave to stall the high-speed AXI master when buffers are full, thus guaranteeing data integrity under heavy load conditions.
-
 ---
 
 ## Key Features
