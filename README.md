@@ -5,9 +5,9 @@
 **Institution:** Bar-Ilan University  
 **Focus:** Digital Design - Bus Protocols (AXI/APB), CDC, & Verification
 
-This project implements a robust, synthesizable bridge between a high-speed **AXI4-Lite** master (fast clock domain) and an **APB** slave (slow clock domain) in Verilog HDL. In modern System-on-Chip (SoC) designs, subsystems often operate at different frequencies to optimize power and performance. Bridging these domains requires careful handling of **Clock Domain Crossing (CDC)** to prevent metastability and data loss.
+This project implements a synthesizable **AXI4 Lite ↔ APB** bridge in Verilog HDL, connecting a high-speed AXI clock domain to a slower APB clock domain where the bridge operates as an **APB master**. The design addresses **CDC** challenges (metastability, data integrity, and ordering) using **asynchronous FIFOs** with Gray coded pointers and **2FF synchronizers** on the pointer crossings.
 
-To address these challenges, the design employs **Asynchronous FIFOs** utilizing Gray-coded pointers and 2-stage synchronizers (2FF) for command and response paths. This architecture ensures safe operation and supports full flow control (backpressure), allowing the APB slave to stall the high-speed AXI master when buffers are full, thus guaranteeing data integrity under heavy load conditions. The system features a dedicated AXI Slave FSM, an APB Master FSM, and is accompanied by a self-checking testbench.
+Separate command/response buffering provides **full flow control (backpressure)** via AXI ready/valid, allowing the system to safely throttle AXI transactions when buffers are full. The bridge includes a dedicated AXI slave controller, an APB master FSM, and a **self-checking SystemVerilog testbench** validating correct handshakes, stalling behavior, and CDC safe operation under stress.
 
 ---
 ## Table of Contents
