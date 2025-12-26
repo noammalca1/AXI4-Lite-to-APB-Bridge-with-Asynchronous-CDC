@@ -23,7 +23,7 @@ To address these challenges, the design employs **Asynchronous FIFOs** utilizing
     - [Verification Testbench](#verification-testbench-module)
 - [Data & Control Flow](#system-data--control-flow)
 - [End-to-End Transaction Logic](#end-to-end-transaction-logic)
-- [Asynchronous FIFO (CDC)](#asynchronous-fifo-cdc)
+- [Asynchronous FIFO (CDC)](#asynchronous-fifo-design-cdc)
 - [Verification Testbench (Simulation and Waveforms)](#verification-testbench-simulation-and-waveforms)
     - [Test 0 Analysis (Read Request with APB Stall)](#test-0-read-request-with-apb-stall--recovery)
     - [Test 1 Analysis (Write Burst & Backpressure)](#test-1-write-burst-with-backpressure)
