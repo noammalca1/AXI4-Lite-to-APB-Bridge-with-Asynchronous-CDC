@@ -142,7 +142,7 @@ A comprehensive SystemVerilog testbench designed to validate the bridge under st
 * **Traffic Generation:** Simulates an AXI Master initiating burst transactions and an APB Slave with random stall capabilities (`PREADY` randomization).
 * **Automated Checks:** Monitors transaction integrity, verifying that data written by the AXI Master matches the data received by the APB Slave (and vice versa) and checking for protocol violations.
 ---
-## 1. System Data & Control Flow
+## System Data & Control Flow
 
 This diagram illustrates how data flows from the AXI Master, through the CDC FIFOs, to the APB FSM, and back.
 
@@ -305,7 +305,7 @@ graph LR
     AXI_M -. "RREADY" .-> DUT
 ```
 ---
-### 3. Asynchronous FIFO Design (CDC)
+### Asynchronous FIFO Design (CDC)
 
 This diagram details the architecture of the **Asynchronous FIFO** used for safe Clock Domain Crossing. It ensures data integrity between the fast AXI domain and the slow APB domain using Gray-coded pointers.
 
