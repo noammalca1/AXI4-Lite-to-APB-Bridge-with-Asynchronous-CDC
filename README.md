@@ -140,7 +140,7 @@ A standard hardening block for crossing clock domains.
 A comprehensive SystemVerilog testbench designed to validate the bridge under stress.
 * **Clock Generation:** Generates asynchronous clocks (`ACLK` and `PCLK`) with configurable frequency ratios.
 * **Traffic Generation:** Simulates an AXI Master initiating burst transactions and an APB Slave with random stall capabilities (`PREADY` randomization).
-* **Automated Checks:** Monitors transaction integrity, verifying that data written by the AXI Master matches the data received by the APB Slave (and vice versa) and checking for protocol violations.
+* **Automated Checks:** Monitors transaction integrity, verifying that data written by the AXI Master matches the data received by the APB Slave (and vice versa).
 ---
 ## Data & Control Flow
 
