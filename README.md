@@ -6,7 +6,7 @@
 **Focus:** Digital Design - Bus Protocols (AXI/APB), CDC, & Verification
 
 This project implements a synthesizable **AXI4-Lite ↔ APB** bridge in SystemVerilog HDL, connecting a high-speed AXI clock domain to a slower APB clock domain where the bridge operates as an **APB master**.  
-The design addresses **CDC** challenges using **asynchronous FIFOs** with Gray-coded pointers and **2-FF synchronizers** on the pointer crossings. Robust flow control is achieved through independent command and response buffering, where the FIFO 'full' status is directly mapped to the AXI `READY` signals to exert backpressure. This mechanism automatically throttles the high-speed master during congestion, ensuring zero data loss.  
+The design addresses **CDC** challenges using **asynchronous FIFOs** with Gray-coded pointers and **2FF synchronizers** on the pointer crossings. Robust flow control is achieved through independent command and response buffering, where the FIFO 'full' status is directly mapped to the AXI `READY` signals to exert backpressure. This mechanism automatically throttles the high-speed master during congestion, ensuring zero data loss.  
 The system integrates a modular AXI Slave, a robust APB Master FSM, and a **self-checking SystemVerilog testbench** designed to verify protocol compliance and CDC stability under stress.
 
 ---
