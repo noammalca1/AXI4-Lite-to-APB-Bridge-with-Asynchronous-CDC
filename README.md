@@ -142,7 +142,7 @@ A comprehensive SystemVerilog testbench designed to validate the bridge under st
 * **Traffic Generation:** Simulates an AXI Master initiating burst transactions and an APB Slave with random stall capabilities (`PREADY` randomization).
 * **Automated Checks:** Monitors transaction integrity, verifying that data written by the AXI Master matches the data received by the APB Slave (and vice versa) and checking for protocol violations.
 ---
-## System Data & Control Flow
+## Data & Control Flow
 
 This diagram illustrates how data flows from the AXI Master, through the CDC FIFOs, to the APB FSM, and back.
 
