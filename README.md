@@ -21,7 +21,7 @@ To address these challenges, the design employs **Asynchronous FIFOs** utilizing
     - [APB Master FSM](#apb-master-fsm)
     - [Asynchronous FIFO (CDC)](#asynchronous-fifo-cdc)
     - [Verification Testbench](#verification-testbench-module)
-- [Data & Control Flow](#system-data--control-flow)
+- [Data & Control Flow](#data--control-flow)
 - [End-to-End Transaction Logic](#end-to-end-transaction-logic)
 - [Asynchronous FIFO Design (CDC)](#asynchronous-fifo-design-cdc)
 - [Verification Testbench (Simulation and Waveforms)](#verification-testbench-simulation-and-waveforms)
