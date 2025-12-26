@@ -385,6 +385,7 @@ graph LR
     R_Cmp -- "Match = Empty" --> Output_Empty("Output: empty")
 ```
 ---
+### Verification Test
 ### Test 0: Read Request with APB Stall & Recovery
 
 This test verifies the system's robustness when the **AXI Master initiates a read transaction** (`ARADDR`) while the **APB Slave is not ready** (`PREADY=0`), and validates the correct completion once the Slave becomes ready.
